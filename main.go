@@ -61,10 +61,67 @@ type ValidateLoginResponse struct {
 	StudentSince   string `json:"student_since"`
 }
 
+// Assignment Struct to be stored in studentAssignmentsCollection
+type Assignment struct {
+	Title         string    `json:"title"`
+	Subject       string    `json:"subject"`
+	DocumentUrl   string    `json:"document_url"`
+	DateAssigned  time.Time `json:"date_assigned"`
+	DateStarted   time.Time `json:"date_started"`
+	DateCompleted time.Time `json:"date_completed"`
+}
+
+// StudentAssignments Struct
+type StudentAssignments struct {
+	StudentId   string       `json:"student_id"`
+	Assignments []Assignment `json:"assignments"`
+}
+
+// SpaceShooterGame Struct to be stored in studentGamesCollection for SpaceShooter
+type SpaceShooterGame struct {
+	Level         string    `json:"level"`
+	Score         int       `json:"score"`
+	DateStarted   time.Time `json:"date_started"`
+	DateCompleted time.Time `json:"date_completed"`
+}
+
+// WordioGame Struct to be stored in studentGamesCollection for Wordio
+type WordioGame struct {
+	Level         string    `json:"level"`
+	Score         int       `json:"score"`
+	DateStarted   time.Time `json:"date_started"`
+	DateCompleted time.Time `json:"date_completed"`
+}
+
+// SpellingPuddlesWord Struct word for SpellingPuddlesGame
+type SpellingPuddlesWord struct {
+	Word          string   `json:"word"`
+	LettersChosen []string `json:"letters_chosen"`
+	AudioUri      string   `json:"audio_uri"`
+}
+
+// SpellingPuddlesGame Struct to be stored in studentGamesCollection for SpellingPuddles
+type SpellingPuddlesGame struct {
+	Level         string    `json:"level"`
+	Score         int       `json:"score"`
+	DateStarted   time.Time `json:"date_started"`
+	DateCompleted time.Time `json:"date_completed"`
+}
+
+// StudentGames Struct
+type StudentGames struct {
+	StudentId       string                `json:"student_id"`
+	SpaceShooter    []SpaceShooterGame    `json:"space_shooter"`    // Well... a Space Shooter game lol
+	Wordio          []WordioGame          `json:"wordio"`           // Mario-like game
+	SpellingPuddles []SpellingPuddlesGame `json:"spelling_puddles"` // Rain drops containing characters fall down to spell words game
+}
+
 var mongoClient *mongo.Client
 var dbName = "aspireDB"
 var registrationCollection = "registrations"
 var studentsCollection = "students"
+var studentAssignmentsCollection = "assignments"
+var studentGamesCollection = "games"
 
 func main() {
 	// Initialize MongoDB connection

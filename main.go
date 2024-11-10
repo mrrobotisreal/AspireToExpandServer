@@ -33,11 +33,13 @@ type ValidationResponse struct {
 
 // CreateNewStudentLoginRequest Struct to handle incoming create new student request
 type CreateNewStudentLoginRequest struct {
-	FirstName      string `json:"first_name"`
-	LastName       string `json:"last_name"`
-	EmailAddress   string `json:"email_address"`
-	Password       string `json:"password"`
-	NativeLanguage string `json:"native_language"`
+	FirstName         string `json:"first_name"`
+	PreferredName     string `json:"preferred_name"`
+	LastName          string `json:"last_name"`
+	EmailAddress      string `json:"email_address"`
+	Password          string `json:"password"`
+	NativeLanguage    string `json:"native_language"`
+	PreferredLanguage string `json:"preferred_language"`
 }
 
 // CreateNewStudentResponse Struct to handle outgoing create new student response
@@ -53,12 +55,14 @@ type ValidateLoginRequest struct {
 
 // ValidateLoginResponse Struct to handle outgoing login response
 type ValidateLoginResponse struct {
-	StudentId      string `json:"student_id"`
-	FirstName      string `json:"first_name"`
-	LastName       string `json:"last_name"`
-	EmailAddress   string `json:"email_address"`
-	NativeLanguage string `json:"native_language"`
-	StudentSince   string `json:"student_since"`
+	StudentId         string `json:"student_id"`
+	FirstName         string `json:"first_name"`
+	PreferredName     string `json:"preferred_name"`
+	LastName          string `json:"last_name"`
+	EmailAddress      string `json:"email_address"`
+	NativeLanguage    string `json:"native_language"`
+	PreferredLanguage string `json:"preferred_language"`
+	StudentSince      string `json:"student_since"`
 }
 
 // Assignment Struct to be stored in studentAssignmentsCollection
@@ -145,7 +149,6 @@ func main() {
 	http.HandleFunc("/students/create", createNewStudentHandler)
 	http.HandleFunc("/validate/login", validateLoginHandler)
 
-	// Wrap your handler with the CORS middleware
 	fmt.Println("Server running on port 8888...")
 	if err := http.ListenAndServe(":8888", enableCors(http.DefaultServeMux)); err != nil {
 		log.Fatal(err)
@@ -321,23 +324,27 @@ func createNewStudentHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 type Student struct {
-	StudentId      string `json:"student_id"`
-	FirstName      string `json:"first_name"`
-	LastName       string `json:"last_name"`
-	EmailAddress   string `json:"email_address"`
-	Password       string `json:"password"`
-	Salt           string `json:"salt"`
-	NativeLanguage string `json:"native_language"`
-	StudentSince   string `json:"student_since"`
+	StudentId         string `json:"student_id"`
+	FirstName         string `json:"first_name"`
+	PreferredName     string `json:"preferred_name"`
+	LastName          string `json:"last_name"`
+	EmailAddress      string `json:"email_address"`
+	Password          string `json:"password"`
+	Salt              string `json:"salt"`
+	NativeLanguage    string `json:"native_language"`
+	PreferredLanguage string `json:"preferred_language"`
+	StudentSince      string `json:"student_since"`
 }
 
 func createNewStudent(req CreateNewStudentLoginRequest) (string, error) {
 	var newStudent Student
 	newStudent.StudentId = uuid.New().String()
 	newStudent.FirstName = req.FirstName
+	newStudent.PreferredName = req.PreferredName
 	newStudent.LastName = req.LastName
 	newStudent.EmailAddress = req.EmailAddress
 	newStudent.NativeLanguage = req.NativeLanguage
+	newStudent.PreferredLanguage = req.PreferredLanguage
 
 	salt, err := generateSalt(10)
 	if err != nil {
@@ -404,12 +411,14 @@ func validateLoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := ValidateLoginResponse{
-		StudentId:      result.StudentInfo.StudentId,
-		FirstName:      result.StudentInfo.FirstName,
-		LastName:       result.StudentInfo.LastName,
-		EmailAddress:   result.StudentInfo.EmailAddress,
-		NativeLanguage: result.StudentInfo.NativeLanguage,
-		StudentSince:   result.StudentInfo.StudentSince,
+		StudentId:         result.StudentInfo.StudentId,
+		FirstName:         result.StudentInfo.FirstName,
+		PreferredName:     result.StudentInfo.PreferredName,
+		LastName:          result.StudentInfo.LastName,
+		EmailAddress:      result.StudentInfo.EmailAddress,
+		NativeLanguage:    result.StudentInfo.NativeLanguage,
+		PreferredLanguage: result.StudentInfo.PreferredLanguage,
+		StudentSince:      result.StudentInfo.StudentSince,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -423,12 +432,14 @@ type ValidateLoginResult struct {
 
 func validateLogin(req ValidateLoginRequest) (ValidateLoginResult, error) {
 	student := ValidateLoginResponse{
-		StudentId:      "",
-		FirstName:      "",
-		LastName:       "",
-		EmailAddress:   "",
-		NativeLanguage: "",
-		StudentSince:   "",
+		StudentId:         "",
+		FirstName:         "",
+		PreferredName:     "",
+		LastName:          "",
+		EmailAddress:      "",
+		NativeLanguage:    "",
+		PreferredLanguage: "",
+		StudentSince:      "",
 	}
 	validateLoginResult := ValidateLoginResult{
 		IsValid:     false,
@@ -450,9 +461,11 @@ func validateLogin(req ValidateLoginRequest) (ValidateLoginResult, error) {
 
 	student.StudentId = studentResult.StudentId
 	student.FirstName = studentResult.FirstName
+	student.PreferredName = studentResult.PreferredName
 	student.LastName = studentResult.LastName
 	student.EmailAddress = studentResult.EmailAddress
 	student.NativeLanguage = studentResult.NativeLanguage
+	student.PreferredLanguage = studentResult.PreferredLanguage
 	student.StudentSince = studentResult.StudentSince
 
 	isPasswordValid := checkPasswordHash(req.Password+studentResult.Salt, studentResult.Password)
@@ -471,9 +484,11 @@ func validateLogin(req ValidateLoginRequest) (ValidateLoginResult, error) {
 // RegistrationCode
 // StudentId
 // FirstName
+// PreferredName
 // LastName
 // EmailAddress
 // NativeLanguage
+// PreferredLanguage
 // Password
 // Salt
 // StudentSince (timestamp)

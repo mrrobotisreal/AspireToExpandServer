@@ -33,15 +33,17 @@ type ValidationResponse struct {
 
 // CreateNewStudentLoginRequest Struct to handle incoming create new student request
 type CreateNewStudentLoginRequest struct {
-	FirstName         string `json:"first_name"`
-	PreferredName     string `json:"preferred_name"`
-	LastName          string `json:"last_name"`
-	EmailAddress      string `json:"email_address"`
-	Password          string `json:"password"`
-	NativeLanguage    string `json:"native_language"`
-	PreferredLanguage string `json:"preferred_language"`
-	ThemeMode         string `json:"theme_mode"`
-	FontStyle         string `json:"font_style"`
+	FirstName          string `json:"first_name"`
+	PreferredName      string `json:"preferred_name"`
+	LastName           string `json:"last_name"`
+	EmailAddress       string `json:"email_address"`
+	Password           string `json:"password"`
+	NativeLanguage     string `json:"native_language"`
+	PreferredLanguage  string `json:"preferred_language"`
+	ProfilePicturePath string `json:"profile_picture_path"`
+	ThemeMode          string `json:"theme_mode"`
+	FontStyle          string `json:"font_style"`
+	TimeZone           string `json:"time_zone"`
 }
 
 // CreateNewStudentResponse Struct to handle outgoing create new student response
@@ -57,16 +59,49 @@ type ValidateLoginRequest struct {
 
 // ValidateLoginResponse Struct to handle outgoing login response
 type ValidateLoginResponse struct {
-	StudentId         string `json:"student_id"`
-	FirstName         string `json:"first_name"`
-	PreferredName     string `json:"preferred_name"`
-	LastName          string `json:"last_name"`
-	EmailAddress      string `json:"email_address"`
-	NativeLanguage    string `json:"native_language"`
-	PreferredLanguage string `json:"preferred_language"`
-	StudentSince      string `json:"student_since"`
-	ThemeMode         string `json:"theme_mode"`
-	FontStyle         string `json:"font_style"`
+	StudentId          string `json:"student_id"`
+	FirstName          string `json:"first_name"`
+	PreferredName      string `json:"preferred_name"`
+	LastName           string `json:"last_name"`
+	EmailAddress       string `json:"email_address"`
+	NativeLanguage     string `json:"native_language"`
+	PreferredLanguage  string `json:"preferred_language"`
+	StudentSince       string `json:"student_since"`
+	ProfilePicturePath string `json:"profile_picture_path"`
+	ThemeMode          string `json:"theme_mode"`
+	FontStyle          string `json:"font_style"`
+	TimeZone           string `json:"time_zone"`
+}
+
+// UpdateStudentInfoRequest Struct to handle incoming updates to student info
+type UpdateStudentInfoRequest struct {
+	FirstName          string `json:"first_name"`
+	PreferredName      string `json:"preferred_name"`
+	LastName           string `json:"last_name"`
+	EmailAddress       string `json:"email_address"`
+	NativeLanguage     string `json:"native_language"`
+	PreferredLanguage  string `json:"preferred_language"`
+	StudentSince       string `json:"student_since"`
+	ProfilePicturePath string `json:"profile_picture_path"`
+	ThemeMode          string `json:"theme_mode"`
+	FontStyle          string `json:"font_style"`
+	TimeZone           string `json:"time_zone"`
+}
+
+// UpdateStudentInfoResponse Struct to handle outgoing response after updating student info
+type UpdateStudentInfoResponse struct {
+	StudentId          string `json:"student_id"`
+	FirstName          string `json:"first_name"`
+	PreferredName      string `json:"preferred_name"`
+	LastName           string `json:"last_name"`
+	EmailAddress       string `json:"email_address"`
+	NativeLanguage     string `json:"native_language"`
+	PreferredLanguage  string `json:"preferred_language"`
+	StudentSince       string `json:"student_since"`
+	ProfilePicturePath string `json:"profile_picture_path"`
+	ThemeMode          string `json:"theme_mode"`
+	FontStyle          string `json:"font_style"`
+	TimeZone           string `json:"time_zone"`
 }
 
 // Assignment Struct to be stored in studentAssignmentsCollection
@@ -152,6 +187,7 @@ func main() {
 	http.HandleFunc("/validate/registration", validateRegistrationHandler)
 	http.HandleFunc("/students/create", createNewStudentHandler)
 	http.HandleFunc("/validate/login", validateLoginHandler)
+	http.HandleFunc("/students/update", updateStudentInfoHandler)
 
 	fmt.Println("Server running on port 8888...")
 	if err := http.ListenAndServe(":8888", enableCors(http.DefaultServeMux)); err != nil {
@@ -324,18 +360,20 @@ func createNewStudentHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 type Student struct {
-	StudentId         string `json:"student_id"`
-	FirstName         string `json:"first_name"`
-	PreferredName     string `json:"preferred_name"`
-	LastName          string `json:"last_name"`
-	EmailAddress      string `json:"email_address"`
-	Password          string `json:"password"`
-	Salt              string `json:"salt"`
-	NativeLanguage    string `json:"native_language"`
-	PreferredLanguage string `json:"preferred_language"`
-	StudentSince      string `json:"student_since"`
-	ThemeMode         string `json:"theme_mode"`
-	FontStyle         string `json:"font_style"`
+	StudentId          string `json:"student_id"`
+	FirstName          string `json:"first_name"`
+	PreferredName      string `json:"preferred_name"`
+	LastName           string `json:"last_name"`
+	EmailAddress       string `json:"email_address"`
+	Password           string `json:"password"`
+	Salt               string `json:"salt"`
+	NativeLanguage     string `json:"native_language"`
+	PreferredLanguage  string `json:"preferred_language"`
+	StudentSince       string `json:"student_since"`
+	ProfilePicturePath string `json:"profile_picture_path"`
+	ThemeMode          string `json:"theme_mode"`
+	FontStyle          string `json:"font_style"`
+	TimeZone           string `json:"time_zone"`
 }
 
 func createNewStudent(req CreateNewStudentLoginRequest) (string, error) {
@@ -347,8 +385,10 @@ func createNewStudent(req CreateNewStudentLoginRequest) (string, error) {
 	newStudent.EmailAddress = req.EmailAddress
 	newStudent.NativeLanguage = req.NativeLanguage
 	newStudent.PreferredLanguage = req.PreferredLanguage
+	newStudent.ProfilePicturePath = req.ProfilePicturePath
 	newStudent.ThemeMode = req.ThemeMode
 	newStudent.FontStyle = req.FontStyle
+	newStudent.TimeZone = req.TimeZone
 
 	salt, err := generateSalt(10)
 	if err != nil {
@@ -356,6 +396,7 @@ func createNewStudent(req CreateNewStudentLoginRequest) (string, error) {
 		salt = req.EmailAddress
 	}
 	fmt.Println("Salt: " + salt)
+	fmt.Println("Req.password: " + req.Password)
 
 	hashedPassword, err := hashPassword(req.Password + salt)
 	if err != nil {
@@ -363,6 +404,7 @@ func createNewStudent(req CreateNewStudentLoginRequest) (string, error) {
 		fmt.Println("Error is: " + err.Error())
 		return "", err
 	}
+	fmt.Println("hashedPassword: " + hashedPassword)
 
 	newStudent.Password = hashedPassword
 	newStudent.Salt = salt
@@ -399,8 +441,6 @@ func validateLoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Println("ValidateLogin request incoming...")
-	fmt.Println(req.EmailAddress)
-	fmt.Println(req.Password)
 
 	result, err := validateLogin(req)
 
@@ -415,16 +455,18 @@ func validateLoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := ValidateLoginResponse{
-		StudentId:         result.StudentInfo.StudentId,
-		FirstName:         result.StudentInfo.FirstName,
-		PreferredName:     result.StudentInfo.PreferredName,
-		LastName:          result.StudentInfo.LastName,
-		EmailAddress:      result.StudentInfo.EmailAddress,
-		NativeLanguage:    result.StudentInfo.NativeLanguage,
-		PreferredLanguage: result.StudentInfo.PreferredLanguage,
-		StudentSince:      result.StudentInfo.StudentSince,
-		ThemeMode:         result.StudentInfo.ThemeMode,
-		FontStyle:         result.StudentInfo.FontStyle,
+		StudentId:          result.StudentInfo.StudentId,
+		FirstName:          result.StudentInfo.FirstName,
+		PreferredName:      result.StudentInfo.PreferredName,
+		LastName:           result.StudentInfo.LastName,
+		EmailAddress:       result.StudentInfo.EmailAddress,
+		NativeLanguage:     result.StudentInfo.NativeLanguage,
+		PreferredLanguage:  result.StudentInfo.PreferredLanguage,
+		StudentSince:       result.StudentInfo.StudentSince,
+		ProfilePicturePath: result.StudentInfo.ProfilePicturePath,
+		ThemeMode:          result.StudentInfo.ThemeMode,
+		FontStyle:          result.StudentInfo.FontStyle,
+		TimeZone:           result.StudentInfo.TimeZone,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -438,16 +480,18 @@ type ValidateLoginResult struct {
 
 func validateLogin(req ValidateLoginRequest) (ValidateLoginResult, error) {
 	student := ValidateLoginResponse{
-		StudentId:         "",
-		FirstName:         "",
-		PreferredName:     "",
-		LastName:          "",
-		EmailAddress:      "",
-		NativeLanguage:    "",
-		PreferredLanguage: "",
-		StudentSince:      "",
-		ThemeMode:         "",
-		FontStyle:         "",
+		StudentId:          "",
+		FirstName:          "",
+		PreferredName:      "",
+		LastName:           "",
+		EmailAddress:       "",
+		NativeLanguage:     "",
+		PreferredLanguage:  "",
+		StudentSince:       "",
+		ProfilePicturePath: "",
+		ThemeMode:          "",
+		FontStyle:          "",
+		TimeZone:           "",
 	}
 	validateLoginResult := ValidateLoginResult{
 		IsValid:     false,
@@ -464,6 +508,7 @@ func validateLogin(req ValidateLoginRequest) (ValidateLoginResult, error) {
 	err := collection.FindOne(ctx, bson.M{"emailaddress": req.EmailAddress}).Decode(&studentResult)
 	if err != nil {
 		fmt.Println("Error finding student account... returning error")
+		fmt.Println("Error is: " + err.Error())
 		return validateLoginResult, err
 	}
 
@@ -475,11 +520,14 @@ func validateLogin(req ValidateLoginRequest) (ValidateLoginResult, error) {
 	student.NativeLanguage = studentResult.NativeLanguage
 	student.PreferredLanguage = studentResult.PreferredLanguage
 	student.StudentSince = studentResult.StudentSince
+	student.ProfilePicturePath = studentResult.ProfilePicturePath
 	student.ThemeMode = studentResult.ThemeMode
 	student.FontStyle = studentResult.FontStyle
+	student.TimeZone = studentResult.TimeZone
 
 	isPasswordValid := checkPasswordHash(req.Password+studentResult.Salt, studentResult.Password)
 	validateLoginResult.IsValid = isPasswordValid
+	validateLoginResult.StudentInfo = student
 
 	if isPasswordValid {
 		fmt.Println("Password is valid: TRUE")
@@ -488,6 +536,125 @@ func validateLogin(req ValidateLoginRequest) (ValidateLoginResult, error) {
 	}
 
 	return validateLoginResult, nil
+}
+
+func updateStudentInfoHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPut {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req UpdateStudentInfoRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	fmt.Println("UpdateStudentInfo request incoming...")
+	fmt.Println("req.EmailAddress: " + req.EmailAddress)
+	fmt.Println("req.ProfilePicturePath: " + req.ProfilePicturePath)
+	fmt.Println("req.ThemeMode: " + req.ThemeMode)
+	fmt.Println("req.FontStyle: " + req.FontStyle)
+
+	result, err := updateStudentInfo(req)
+
+	if err != nil {
+		http.Error(w, "Error updating student information.", http.StatusInternalServerError)
+		return
+	}
+
+	response := UpdateStudentInfoResponse{
+		StudentId:          result.StudentId,
+		FirstName:          result.FirstName,
+		PreferredName:      result.PreferredName,
+		LastName:           result.LastName,
+		EmailAddress:       result.EmailAddress,
+		NativeLanguage:     result.NativeLanguage,
+		PreferredLanguage:  result.PreferredLanguage,
+		StudentSince:       result.StudentSince,
+		ProfilePicturePath: result.ProfilePicturePath,
+		ThemeMode:          result.ThemeMode,
+		FontStyle:          result.FontStyle,
+		TimeZone:           result.TimeZone,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
+
+func updateStudentInfo(req UpdateStudentInfoRequest) (UpdateStudentInfoResponse, error) {
+	student := UpdateStudentInfoResponse{
+		StudentId:          "",
+		FirstName:          "",
+		PreferredName:      "",
+		LastName:           "",
+		EmailAddress:       "",
+		NativeLanguage:     "",
+		PreferredLanguage:  "",
+		StudentSince:       "",
+		ProfilePicturePath: "",
+		ThemeMode:          "",
+		FontStyle:          "",
+		TimeZone:           "",
+	}
+
+	update := bson.M{}
+
+	if req.ThemeMode != "" {
+		update["thememode"] = req.ThemeMode
+	}
+
+	if req.FontStyle != "" {
+		update["fontstyle"] = req.FontStyle
+	}
+
+	if req.ProfilePicturePath != "" {
+		update["profilepicturepath"] = req.ProfilePicturePath
+	}
+
+	if req.PreferredName != "" {
+		update["preferredname"] = req.PreferredName
+	}
+
+	if req.PreferredLanguage != "" {
+		update["preferredlanguage"] = req.PreferredLanguage
+	}
+
+	if req.TimeZone != "" {
+		update["timezone"] = req.TimeZone
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	collection := mongoClient.Database(dbName).Collection(studentsCollection)
+
+	// Query MongoDB
+	var studentResult Student
+	err := collection.FindOneAndUpdate(ctx, bson.M{"emailaddress": req.EmailAddress}, bson.M{
+		"$set": update,
+	}).Decode(&studentResult)
+	if err != nil {
+		fmt.Println("Error updating student info in mongodb... returning error")
+		fmt.Println("Error is: " + err.Error())
+		return student, err
+	}
+
+	student.StudentId = studentResult.StudentId
+	student.FirstName = studentResult.FirstName
+	student.PreferredName = studentResult.PreferredName
+	student.LastName = studentResult.LastName
+	student.EmailAddress = studentResult.EmailAddress
+	student.NativeLanguage = studentResult.NativeLanguage
+	student.PreferredLanguage = studentResult.PreferredLanguage
+	student.StudentSince = studentResult.StudentSince
+	student.ProfilePicturePath = studentResult.ProfilePicturePath
+	student.ThemeMode = studentResult.ThemeMode
+	student.FontStyle = studentResult.FontStyle
+	student.TimeZone = studentResult.TimeZone
+
+	return student, nil
 }
 
 // STUDENT struct
@@ -502,4 +669,7 @@ func validateLogin(req ValidateLoginRequest) (ValidateLoginResult, error) {
 // Password
 // Salt
 // StudentSince (timestamp)
+// ProfilePicturePath
 // ThemeMode
+// FontStyle
+// TimeZone

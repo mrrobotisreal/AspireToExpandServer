@@ -41,6 +41,7 @@ type CreateNewStudentLoginRequest struct {
 	NativeLanguage    string `json:"native_language"`
 	PreferredLanguage string `json:"preferred_language"`
 	ThemeMode         string `json:"theme_mode"`
+	FontStyle         string `json:"font_style"`
 }
 
 // CreateNewStudentResponse Struct to handle outgoing create new student response
@@ -65,6 +66,7 @@ type ValidateLoginResponse struct {
 	PreferredLanguage string `json:"preferred_language"`
 	StudentSince      string `json:"student_since"`
 	ThemeMode         string `json:"theme_mode"`
+	FontStyle         string `json:"font_style"`
 }
 
 // Assignment Struct to be stored in studentAssignmentsCollection
@@ -307,10 +309,6 @@ func createNewStudentHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Println("CreateNewStudent request incoming...")
-	fmt.Println(req.FirstName + " " + req.LastName)
-	fmt.Println(req.EmailAddress)
-	fmt.Println(req.Password)
-	fmt.Println(req.NativeLanguage)
 
 	newStudentId, err := createNewStudent(req)
 
@@ -337,6 +335,7 @@ type Student struct {
 	PreferredLanguage string `json:"preferred_language"`
 	StudentSince      string `json:"student_since"`
 	ThemeMode         string `json:"theme_mode"`
+	FontStyle         string `json:"font_style"`
 }
 
 func createNewStudent(req CreateNewStudentLoginRequest) (string, error) {
@@ -349,6 +348,7 @@ func createNewStudent(req CreateNewStudentLoginRequest) (string, error) {
 	newStudent.NativeLanguage = req.NativeLanguage
 	newStudent.PreferredLanguage = req.PreferredLanguage
 	newStudent.ThemeMode = req.ThemeMode
+	newStudent.FontStyle = req.FontStyle
 
 	salt, err := generateSalt(10)
 	if err != nil {
@@ -424,6 +424,7 @@ func validateLoginHandler(w http.ResponseWriter, r *http.Request) {
 		PreferredLanguage: result.StudentInfo.PreferredLanguage,
 		StudentSince:      result.StudentInfo.StudentSince,
 		ThemeMode:         result.StudentInfo.ThemeMode,
+		FontStyle:         result.StudentInfo.FontStyle,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -446,6 +447,7 @@ func validateLogin(req ValidateLoginRequest) (ValidateLoginResult, error) {
 		PreferredLanguage: "",
 		StudentSince:      "",
 		ThemeMode:         "",
+		FontStyle:         "",
 	}
 	validateLoginResult := ValidateLoginResult{
 		IsValid:     false,
@@ -474,6 +476,7 @@ func validateLogin(req ValidateLoginRequest) (ValidateLoginResult, error) {
 	student.PreferredLanguage = studentResult.PreferredLanguage
 	student.StudentSince = studentResult.StudentSince
 	student.ThemeMode = studentResult.ThemeMode
+	student.FontStyle = studentResult.FontStyle
 
 	isPasswordValid := checkPasswordHash(req.Password+studentResult.Salt, studentResult.Password)
 	validateLoginResult.IsValid = isPasswordValid

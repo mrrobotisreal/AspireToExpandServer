@@ -209,7 +209,10 @@ func main() {
 	http.HandleFunc("/students/update", updateStudentInfoHandler)
 
 	fmt.Println("Server running on port 8888...")
-	if err := http.ListenAndServe(":8888", enableCors(http.DefaultServeMux)); err != nil {
+	//if err := http.ListenAndServe(":8888", enableCors(http.DefaultServeMux)); err != nil {
+	//	log.Fatal(err)
+	//}
+	if err := http.ListenAndServe(":8888", nil); err != nil {
 		log.Fatal(err)
 	}
 }

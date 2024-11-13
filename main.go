@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"golang.org/x/crypto/bcrypt"
+	"io"
 	"log"
 	"net/http"
 	"time"
@@ -220,6 +221,12 @@ func enableCors(next http.Handler) http.Handler {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+		fmt.Println("In CORS...")
+		fmt.Println("Method: " + r.Method)
+		bytedata, _ := io.ReadAll(r.Body)
+		reqBodyString := string(bytedata)
+		fmt.Println("Body: " + reqBodyString)
 
 		if r.Method == "OPTIONS" {
 			w.WriteHeader(http.StatusOK)

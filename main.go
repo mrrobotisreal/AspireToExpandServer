@@ -17,6 +17,24 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+// CreateRegistrationRequest Struct to handle incoming create registration code request
+type CreateRegistrationRequest struct {
+	RegistrationCode string `json:"registration_code"`
+	FirstName        string `json:"first_name"`
+	LastName         string `json:"last_name"`
+	EmailAddress     string `json:"email_address"`
+	IsValid          bool   `json:"is_valid"`
+}
+
+// CreateRegistrationResponse struct to handle outgoing create registration code response
+type CreateRegistrationResponse struct {
+	RegistrationCode string `json:"registration_code"`
+	FirstName        string `json:"first_name"`
+	LastName         string `json:"last_name"`
+	EmailAddress     string `json:"email_address"`
+	IsValid          bool   `json:"is_valid"`
+}
+
 // RegistrationRequest Struct to handle incoming registration code request
 type RegistrationRequest struct {
 	RegistrationCode string `json:"registration_code"`
@@ -184,6 +202,7 @@ func main() {
 	}()
 
 	// Setup HTTP server
+	http.HandleFunc("/registration/create", createRegistrationHandler)
 	http.HandleFunc("/validate/registration", validateRegistrationHandler)
 	http.HandleFunc("/students/create", createNewStudentHandler)
 	http.HandleFunc("/validate/login", validateLoginHandler)
@@ -236,6 +255,79 @@ func checkPasswordHash(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 
 	return err == nil
+}
+
+func createRegistrationHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req CreateRegistrationRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	fmt.Println("CreateRegistration request incoming...")
+	fmt.Println(req.RegistrationCode)
+	fmt.Println(req.FirstName)
+	fmt.Println(req.LastName)
+	fmt.Println(req.EmailAddress)
+	fmt.Println(req.IsValid)
+
+	// Validate registration code
+	result, err := createRegistration(req)
+	if err != nil {
+		fmt.Println("Error Creating registration result...")
+		http.Error(w, "Error Creating registration result...", http.StatusInternalServerError)
+		return
+	}
+
+	response := CreateRegistrationResponse{
+		RegistrationCode: result.RegistrationCode,
+		FirstName:        result.FirstName,
+		LastName:         result.LastName,
+		EmailAddress:     result.EmailAddress,
+		IsValid:          result.IsValid,
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
+
+func createRegistration(req CreateRegistrationRequest) (CreateRegistrationResponse, error) {
+	response := CreateRegistrationResponse{
+		RegistrationCode: "abcd-1234",
+		FirstName:        "Bob",
+		LastName:         "Smith",
+		EmailAddress:     "bob@gmail.com",
+		IsValid:          true,
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	collection := mongoClient.Database(dbName).Collection(registrationCollection)
+
+	_, err := collection.InsertOne(ctx, bson.M{
+		"registrationcode": req.RegistrationCode,
+		"firstname":        req.FirstName,
+		"lastname":         req.LastName,
+		"emailaddress":     req.EmailAddress,
+	})
+	if err != nil {
+		fmt.Println("Error inserting registration code...")
+		fmt.Println("Error is: " + err.Error())
+		return response, err
+	}
+
+	fmt.Println("Successfully inserted new registration...")
+	response.RegistrationCode = req.RegistrationCode
+	response.FirstName = req.FirstName
+	response.LastName = req.LastName
+	response.EmailAddress = req.EmailAddress
+	response.IsValid = req.IsValid
+	return response, nil
 }
 
 // HTTP handler for validating registration code

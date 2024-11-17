@@ -780,9 +780,9 @@ func fetchAllStudents() ([]bson.M, error) {
 	pipeline := mongo.Pipeline{
 		{{"$sort", bson.D{{"preferredname", 1}}}},
 		{{"$project", bson.M{
-			"PreferredName": 1,
-			"StudentID":     1,
-			"EmailAddress":  1,
+			"preferredname": 1,
+			"studentid":     1,
+			"emailaddress":  1,
 			"_id":           0,
 		}}},
 	}
@@ -799,6 +799,8 @@ func fetchAllStudents() ([]bson.M, error) {
 		log.Printf("Error getting all students results from cursor: %v", err.Error())
 		return nil, err
 	}
+	fmt.Println("RESULTS:")
+	fmt.Println(results)
 
 	return results, nil
 }

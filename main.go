@@ -207,6 +207,7 @@ func main() {
 	http.HandleFunc("/students/create", createNewStudentHandler)
 	http.HandleFunc("/validate/login", validateLoginHandler)
 	http.HandleFunc("/students/update", updateStudentInfoHandler)
+	http.HandleFunc("/students", handleFetchAllStudents)
 
 	fmt.Println("Server running on port 8888...")
 	//if err := http.ListenAndServe(":8888", enableCors(http.DefaultServeMux)); err != nil {
@@ -752,19 +753,52 @@ func updateStudentInfo(req UpdateStudentInfoRequest) (UpdateStudentInfoResponse,
 	return student, nil
 }
 
-// STUDENT struct
-// RegistrationCode
-// StudentId
-// FirstName
-// PreferredName
-// LastName
-// EmailAddress
-// NativeLanguage
-// PreferredLanguage
-// Password
-// Salt
-// StudentSince (timestamp)
-// ProfilePicturePath
-// ThemeMode
-// FontStyle
-// TimeZone
+func handleFetchAllStudents(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	students, err := fetchAllStudents()
+	if err != nil {
+		http.Error(w, "Error fetching all students.", http.StatusInternalServerError)
+		log.Println(err)
+	}
+
+	fmt.Println(students)
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(students)
+}
+
+func fetchAllStudents() ([]bson.M, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	collection := mongoClient.Database(dbName).Collection(studentsCollection)
+
+	pipeline := mongo.Pipeline{
+		{{"$sort", bson.D{{"preferredname", 1}}}},
+		{{"$project", bson.M{
+			"PreferredName": 1,
+			"StudentID":     1,
+			"EmailAddress":  1,
+			"_id":           0,
+		}}},
+	}
+
+	cursor, err := collection.Aggregate(ctx, pipeline)
+	if err != nil {
+		log.Printf("Error fetching all students: %v", err.Error())
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var results []bson.M
+	if err := cursor.All(ctx, &results); err != nil {
+		log.Printf("Error getting all students results from cursor: %v", err.Error())
+		return nil, err
+	}
+
+	return results, nil
+}

@@ -180,6 +180,7 @@ type StudentGames struct {
 var mongoClient *mongo.Client
 var dbName = "aspireDB"
 var registrationCollection = "registrations"
+var teachersCollection = "teachers"
 var studentsCollection = "students"
 var studentAssignmentsCollection = "assignments"
 var studentGamesCollection = "games"
@@ -206,6 +207,9 @@ func main() {
 	http.HandleFunc("/validate/registration", validateRegistrationHandler)
 	http.HandleFunc("/students/create", createNewStudentHandler)
 	http.HandleFunc("/validate/login", validateLoginHandler)
+	http.HandleFunc("/teachers/create", createTeacherHandler)
+	http.HandleFunc("/teachers/validate/login", validateTeacherLoginHandler)
+	http.HandleFunc("/teachers/update", updateTeacherInfoHandler)
 	http.HandleFunc("/students/update", updateStudentInfoHandler)
 	http.HandleFunc("/students", handleFetchAllStudents)
 
@@ -629,6 +633,392 @@ func validateLogin(req ValidateLoginRequest) (ValidateLoginResult, error) {
 		fmt.Println("Password is valid: TRUE")
 	} else {
 		fmt.Println("Password is valid: FALSE")
+	}
+
+	return validateLoginResult, nil
+}
+
+type Teacher struct {
+	TeacherID          string `json:"teacherID"`
+	FirstName          string `json:"first_name"`
+	PreferredName      string `json:"preferred_name"`
+	LastName           string `json:"last_name"`
+	NativeLanguage     string `json:"native_language"`
+	PreferredLanguage  string `json:"preferred_language"`
+	EmailAddress       string `json:"email_address"`
+	Password           string `json:"password"`
+	Salt               string `json:"salt"`
+	ProfilePicturePath string `json:"profile_picture_path"`
+	ThemeMode          string `json:"theme_mode"`
+	FontStyle          string `json:"font_style"`
+	TimeZone           string `json:"time_zone"`
+}
+
+type CreateTeacherRequest struct {
+	TeacherID          string `json:"teacherID"`
+	FirstName          string `json:"first_name"`
+	PreferredName      string `json:"preferred_name"`
+	LastName           string `json:"last_name"`
+	NativeLanguage     string `json:"native_language"`
+	PreferredLanguage  string `json:"preferred_language"`
+	EmailAddress       string `json:"email_address"`
+	Password           string `json:"password"`
+	ProfilePicturePath string `json:"profile_picture_path"`
+	ThemeMode          string `json:"theme_mode"`
+	FontStyle          string `json:"font_style"`
+	TimeZone           string `json:"time_zone"`
+}
+
+type CreateTeacherResponse struct {
+	TeacherID          string `json:"teacherID"`
+	FirstName          string `json:"first_name"`
+	PreferredName      string `json:"preferred_name"`
+	LastName           string `json:"last_name"`
+	NativeLanguage     string `json:"native_language"`
+	PreferredLanguage  string `json:"preferred_language"`
+	EmailAddress       string `json:"email_address"`
+	ProfilePicturePath string `json:"profile_picture_path"`
+	ThemeMode          string `json:"theme_mode"`
+	FontStyle          string `json:"font_style"`
+	TimeZone           string `json:"time_zone"`
+}
+
+func createTeacherHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req CreateTeacherRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	fmt.Println("CreateTeacher request incoming...")
+
+	result, err := createTeacher(req)
+	if err != nil {
+		http.Error(w, "Error creating teacher: "+err.Error(), http.StatusInternalServerError)
+	}
+
+	response := CreateTeacherResponse{
+		TeacherID:          result.TeacherID,
+		FirstName:          result.FirstName,
+		PreferredName:      result.PreferredName,
+		LastName:           result.LastName,
+		NativeLanguage:     result.NativeLanguage,
+		PreferredLanguage:  result.PreferredLanguage,
+		EmailAddress:       result.EmailAddress,
+		ProfilePicturePath: result.ProfilePicturePath,
+		ThemeMode:          result.ThemeMode,
+		FontStyle:          result.FontStyle,
+		TimeZone:           result.TimeZone,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
+
+func createTeacher(req CreateTeacherRequest) (CreateTeacherResponse, error) {
+	newTeacher := Teacher{
+		TeacherID:          req.TeacherID,
+		FirstName:          req.FirstName,
+		PreferredName:      req.PreferredName,
+		LastName:           req.LastName,
+		NativeLanguage:     req.NativeLanguage,
+		PreferredLanguage:  req.PreferredLanguage,
+		EmailAddress:       req.EmailAddress,
+		ProfilePicturePath: req.ProfilePicturePath,
+		ThemeMode:          req.ThemeMode,
+		FontStyle:          req.FontStyle,
+		TimeZone:           req.TimeZone,
+	}
+	response := CreateTeacherResponse{
+		TeacherID:          req.TeacherID,
+		FirstName:          req.FirstName,
+		PreferredName:      req.PreferredName,
+		LastName:           req.LastName,
+		NativeLanguage:     req.NativeLanguage,
+		PreferredLanguage:  req.PreferredLanguage,
+		EmailAddress:       req.EmailAddress,
+		ProfilePicturePath: req.ProfilePicturePath,
+		ThemeMode:          req.ThemeMode,
+		FontStyle:          req.FontStyle,
+		TimeZone:           req.TimeZone,
+	}
+
+	salt, err := generateSalt(10)
+	if err != nil {
+		fmt.Println("Error generating salt... using email address instead.") // Handle this better later
+		salt = req.EmailAddress
+	}
+	fmt.Println("Salt: " + salt)
+	fmt.Println("Req.password: " + req.Password)
+
+	hashedPassword, err := hashPassword(req.Password + salt)
+	if err != nil {
+		fmt.Println("Error hashing password and salt... returning an error") // Handle this better later
+		fmt.Println("Error is: " + err.Error())
+		return response, err
+	}
+	fmt.Println("hashedPassword: " + hashedPassword)
+
+	newTeacher.Password = hashedPassword
+	newTeacher.Salt = salt
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	collection := mongoClient.Database(dbName).Collection(teachersCollection)
+
+	_, err = collection.InsertOne(ctx, newTeacher)
+	if err != nil {
+		log.Println("Error inserting teacher into teachersCollection: " + err.Error())
+		return response, err
+	}
+
+	return response, nil
+}
+
+type UpdateTeacherInfoRequest struct {
+	TeacherID          string `json:"teacherID"`
+	FirstName          string `json:"first_name"`
+	PreferredName      string `json:"preferred_name"`
+	LastName           string `json:"last_name"`
+	NativeLanguage     string `json:"native_language"`
+	PreferredLanguage  string `json:"preferred_language"`
+	EmailAddress       string `json:"email_address"`
+	ProfilePicturePath string `json:"profile_picture_path"`
+	ThemeMode          string `json:"theme_mode"`
+	FontStyle          string `json:"font_style"`
+	TimeZone           string `json:"time_zone"`
+}
+
+type UpdateTeacherInfoResponse struct {
+	TeacherID          string `json:"teacherID"`
+	FirstName          string `json:"first_name"`
+	PreferredName      string `json:"preferred_name"`
+	LastName           string `json:"last_name"`
+	NativeLanguage     string `json:"native_language"`
+	PreferredLanguage  string `json:"preferred_language"`
+	EmailAddress       string `json:"email_address"`
+	ProfilePicturePath string `json:"profile_picture_path"`
+	ThemeMode          string `json:"theme_mode"`
+	FontStyle          string `json:"font_style"`
+	TimeZone           string `json:"time_zone"`
+}
+
+func updateTeacherInfoHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPut {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req UpdateTeacherInfoRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	result, err := updateTeacherInfo(req)
+	if err != nil {
+		http.Error(w, "Error updating teacher info: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(result)
+}
+
+func updateTeacherInfo(req UpdateTeacherInfoRequest) (UpdateTeacherInfoResponse, error) {
+	updateTeacherInfoResponse := UpdateTeacherInfoResponse{
+		TeacherID:          req.TeacherID,
+		FirstName:          req.FirstName,
+		PreferredName:      req.PreferredName,
+		LastName:           req.LastName,
+		NativeLanguage:     req.NativeLanguage,
+		PreferredLanguage:  req.PreferredLanguage,
+		EmailAddress:       req.EmailAddress,
+		ProfilePicturePath: req.ProfilePicturePath,
+		ThemeMode:          req.ThemeMode,
+		FontStyle:          req.FontStyle,
+		TimeZone:           req.TimeZone,
+	}
+
+	update := bson.M{}
+
+	if req.ThemeMode != "" {
+		update["thememode"] = req.ThemeMode
+	}
+
+	if req.FontStyle != "" {
+		update["fontstyle"] = req.FontStyle
+	}
+
+	if req.ProfilePicturePath != "" {
+		update["profilepicturepath"] = req.ProfilePicturePath
+	}
+
+	if req.PreferredName != "" {
+		update["preferredname"] = req.PreferredName
+	}
+
+	if req.PreferredLanguage != "" {
+		update["preferredlanguage"] = req.PreferredLanguage
+	}
+
+	if req.TimeZone != "" {
+		update["timezone"] = req.TimeZone
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	collection := mongoClient.Database(dbName).Collection(studentsCollection)
+
+	var teacherResult Teacher
+	err := collection.FindOneAndUpdate(ctx, bson.M{
+		"$or": bson.M{
+			"teacherID":    req.TeacherID,
+			"emailaddress": req.EmailAddress,
+		},
+	}, bson.M{
+		"$set": update,
+	}).Decode(&teacherResult)
+	if err != nil {
+		log.Println("Error finding and updating teacher info: ", err.Error())
+		return updateTeacherInfoResponse, nil
+	}
+
+	return updateTeacherInfoResponse, nil
+}
+
+type ValidateTeacherLoginRequest struct {
+	EmailAddress string `json:"email_address"`
+	Password     string `json:"password"`
+	TeacherID    string `json:"teacherID"`
+}
+
+type ValidateTeacherLoginResponse struct {
+	TeacherID          string `json:"teacherID"`
+	FirstName          string `json:"first_name"`
+	PreferredName      string `json:"preferred_name"`
+	LastName           string `json:"last_name"`
+	NativeLanguage     string `json:"native_language"`
+	PreferredLanguage  string `json:"preferred_language"`
+	EmailAddress       string `json:"email_address"`
+	ProfilePicturePath string `json:"profile_picture_path"`
+	ThemeMode          string `json:"theme_mode"`
+	FontStyle          string `json:"font_style"`
+	TimeZone           string `json:"time_zone"`
+}
+
+func validateTeacherLoginHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req ValidateTeacherLoginRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	fmt.Println("ValidateTeacherLogin request incoming...")
+
+	result, err := validateTeacherLogin(req)
+
+	if err != nil {
+		http.Error(w, "Error validating teacher login.", http.StatusInternalServerError)
+		return
+	}
+
+	if !result.IsValid {
+		http.Error(w, "Email address, TeacherID, or password is incorrect.", http.StatusUnauthorized)
+		return
+	}
+
+	response := ValidateTeacherLoginResponse{
+		TeacherID:          result.TeacherInfo.TeacherID,
+		FirstName:          result.TeacherInfo.FirstName,
+		PreferredName:      result.TeacherInfo.PreferredName,
+		LastName:           result.TeacherInfo.LastName,
+		EmailAddress:       result.TeacherInfo.EmailAddress,
+		NativeLanguage:     result.TeacherInfo.NativeLanguage,
+		PreferredLanguage:  result.TeacherInfo.PreferredLanguage,
+		ProfilePicturePath: result.TeacherInfo.ProfilePicturePath,
+		ThemeMode:          result.TeacherInfo.ThemeMode,
+		FontStyle:          result.TeacherInfo.FontStyle,
+		TimeZone:           result.TeacherInfo.TimeZone,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
+
+type ValidateTeacherLoginResult struct {
+	TeacherInfo ValidateTeacherLoginResponse
+	IsValid     bool
+}
+
+func validateTeacherLogin(req ValidateTeacherLoginRequest) (ValidateTeacherLoginResult, error) {
+	teacher := ValidateTeacherLoginResponse{
+		TeacherID:          "",
+		FirstName:          "",
+		PreferredName:      "",
+		LastName:           "",
+		EmailAddress:       "",
+		NativeLanguage:     "",
+		PreferredLanguage:  "",
+		ProfilePicturePath: "",
+		ThemeMode:          "",
+		FontStyle:          "",
+		TimeZone:           "",
+	}
+	validateLoginResult := ValidateTeacherLoginResult{
+		IsValid:     false,
+		TeacherInfo: teacher,
+	}
+	// Check MongoDB for the registration code
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	collection := mongoClient.Database(dbName).Collection(teachersCollection)
+
+	// Query MongoDB
+	var teacherResult Teacher
+	err := collection.FindOne(ctx, bson.M{"emailaddress": req.EmailAddress}).Decode(&teacherResult)
+	if err != nil {
+		fmt.Println("Error finding student account... returning error")
+		fmt.Println("Error is: " + err.Error())
+		return validateLoginResult, err
+	}
+
+	teacher.TeacherID = teacherResult.TeacherID
+	teacher.FirstName = teacherResult.FirstName
+	teacher.PreferredName = teacherResult.PreferredName
+	teacher.LastName = teacherResult.LastName
+	teacher.EmailAddress = teacherResult.EmailAddress
+	teacher.NativeLanguage = teacherResult.NativeLanguage
+	teacher.PreferredLanguage = teacherResult.PreferredLanguage
+	teacher.ProfilePicturePath = teacherResult.ProfilePicturePath
+	teacher.ThemeMode = teacherResult.ThemeMode
+	teacher.FontStyle = teacherResult.FontStyle
+	teacher.TimeZone = teacherResult.TimeZone
+
+	isPasswordValid := checkPasswordHash(req.Password+teacherResult.Salt, teacherResult.Password)
+	validateLoginResult.IsValid = isPasswordValid
+	validateLoginResult.TeacherInfo = teacher
+
+	if isPasswordValid {
+		fmt.Println("Teacher Password is valid: TRUE")
+	} else {
+		fmt.Println("Teacher Password is valid: FALSE")
 	}
 
 	return validateLoginResult, nil

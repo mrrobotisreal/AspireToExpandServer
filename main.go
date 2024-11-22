@@ -66,6 +66,7 @@ type CreateNewStudentLoginRequest struct {
 	ThemeMode          string `json:"theme_mode"`
 	FontStyle          string `json:"font_style"`
 	TimeZone           string `json:"time_zone"`
+	PublicKey          string `json:"public_key"`
 }
 
 // CreateNewStudentResponse Struct to handle outgoing create new student response
@@ -110,6 +111,7 @@ type UpdateStudentInfoRequest struct {
 	ThemeMode          string `json:"theme_mode"`
 	FontStyle          string `json:"font_style"`
 	TimeZone           string `json:"time_zone"`
+	PublicKey          string `json:"public_key"`
 }
 
 // UpdateStudentInfoResponse Struct to handle outgoing response after updating student info
@@ -486,6 +488,7 @@ type Student struct {
 	ThemeMode          string `json:"theme_mode"`
 	FontStyle          string `json:"font_style"`
 	TimeZone           string `json:"time_zone"`
+	PublicKey          string `json:"public_key"`
 }
 
 func createNewStudent(req CreateNewStudentLoginRequest) (string, error) {
@@ -502,6 +505,7 @@ func createNewStudent(req CreateNewStudentLoginRequest) (string, error) {
 	newStudent.ThemeMode = req.ThemeMode
 	newStudent.FontStyle = req.FontStyle
 	newStudent.TimeZone = req.TimeZone
+	newStudent.PublicKey = req.PublicKey
 
 	salt, err := generateSalt(10)
 	if err != nil {
@@ -669,6 +673,7 @@ type Teacher struct {
 	ThemeMode          string `json:"theme_mode"`
 	FontStyle          string `json:"font_style"`
 	TimeZone           string `json:"time_zone"`
+	PublicKey          string `json:"public_key"`
 }
 
 type CreateTeacherRequest struct {
@@ -685,6 +690,7 @@ type CreateTeacherRequest struct {
 	ThemeMode          string `json:"theme_mode"`
 	FontStyle          string `json:"font_style"`
 	TimeZone           string `json:"time_zone"`
+	PublicKey          string `json:"public_key"`
 }
 
 type CreateTeacherResponse struct {
@@ -755,6 +761,7 @@ func createTeacher(req CreateTeacherRequest) (CreateTeacherResponse, error) {
 		ThemeMode:          req.ThemeMode,
 		FontStyle:          req.FontStyle,
 		TimeZone:           req.TimeZone,
+		PublicKey:          req.PublicKey,
 	}
 	response := CreateTeacherResponse{
 		TeacherID:          req.TeacherID,
@@ -817,6 +824,7 @@ type UpdateTeacherInfoRequest struct {
 	ThemeMode          string `json:"theme_mode"`
 	FontStyle          string `json:"font_style"`
 	TimeZone           string `json:"time_zone"`
+	PublicKey          string `json:"public_key"`
 }
 
 type UpdateTeacherInfoResponse struct {
@@ -901,6 +909,10 @@ func updateTeacherInfo(req UpdateTeacherInfoRequest) (UpdateTeacherInfoResponse,
 
 	if req.TimeZone != "" {
 		update["timezone"] = req.TimeZone
+	}
+
+	if req.PublicKey != "" {
+		update["publickey"] = req.PublicKey
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -1076,6 +1088,7 @@ func updateStudentInfoHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("req.ProfilePicturePath: " + req.ProfilePicturePath)
 	fmt.Println("req.ThemeMode: " + req.ThemeMode)
 	fmt.Println("req.FontStyle: " + req.FontStyle)
+	fmt.Println("req.PublicKey: " + req.PublicKey)
 
 	result, err := updateStudentInfo(req)
 
@@ -1149,6 +1162,10 @@ func updateStudentInfo(req UpdateStudentInfoRequest) (UpdateStudentInfoResponse,
 
 	if req.TimeZone != "" {
 		update["timezone"] = req.TimeZone
+	}
+
+	if req.PublicKey != "" {
+		update["publickey"] = req.PublicKey
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

@@ -2,3 +2,4 @@
 main
 *.pem
 uploads/**/*
+keys/**/*

@@ -3,8 +3,12 @@ package main
 import (
 	"context"
 	"crypto/rand"
+	"crypto/rsa"
+	"crypto/sha256"
+	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
+	"encoding/pem"
 	"fmt"
 	"golang.org/x/crypto/bcrypt"
 	"io"
@@ -12,6 +16,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -488,7 +493,6 @@ type Student struct {
 	ThemeMode          string `json:"theme_mode"`
 	FontStyle          string `json:"font_style"`
 	TimeZone           string `json:"time_zone"`
-	PublicKey          string `json:"public_key"`
 }
 
 func createNewStudent(req CreateNewStudentLoginRequest) (string, error) {
@@ -505,7 +509,6 @@ func createNewStudent(req CreateNewStudentLoginRequest) (string, error) {
 	newStudent.ThemeMode = req.ThemeMode
 	newStudent.FontStyle = req.FontStyle
 	newStudent.TimeZone = req.TimeZone
-	newStudent.PublicKey = req.PublicKey
 
 	salt, err := generateSalt(10)
 	if err != nil {
@@ -539,6 +542,12 @@ func createNewStudent(req CreateNewStudentLoginRequest) (string, error) {
 		return "", err
 	} else {
 		fmt.Println(result)
+	}
+
+	if req.PublicKey != "" {
+		studentID := newStudent.StudentId
+		formattedStudentID := strings.ReplaceAll(studentID, "-", "_")
+		savePublicKey(formattedStudentID, req.PublicKey)
 	}
 
 	return newStudent.StudentId, err
@@ -673,7 +682,6 @@ type Teacher struct {
 	ThemeMode          string `json:"theme_mode"`
 	FontStyle          string `json:"font_style"`
 	TimeZone           string `json:"time_zone"`
-	PublicKey          string `json:"public_key"`
 }
 
 type CreateTeacherRequest struct {
@@ -761,7 +769,6 @@ func createTeacher(req CreateTeacherRequest) (CreateTeacherResponse, error) {
 		ThemeMode:          req.ThemeMode,
 		FontStyle:          req.FontStyle,
 		TimeZone:           req.TimeZone,
-		PublicKey:          req.PublicKey,
 	}
 	response := CreateTeacherResponse{
 		TeacherID:          req.TeacherID,
@@ -806,6 +813,12 @@ func createTeacher(req CreateTeacherRequest) (CreateTeacherResponse, error) {
 	if err != nil {
 		log.Println("Error inserting teacher into teachersCollection: " + err.Error())
 		return response, err
+	}
+
+	if req.PublicKey != "" {
+		teacherID := req.TeacherID
+		formattedTeacherID := strings.ReplaceAll(teacherID, "-", "_")
+		savePublicKey(formattedTeacherID, req.PublicKey)
 	}
 
 	return response, nil
@@ -911,10 +924,6 @@ func updateTeacherInfo(req UpdateTeacherInfoRequest) (UpdateTeacherInfoResponse,
 		update["timezone"] = req.TimeZone
 	}
 
-	if req.PublicKey != "" {
-		update["publickey"] = req.PublicKey
-	}
-
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -932,6 +941,12 @@ func updateTeacherInfo(req UpdateTeacherInfoRequest) (UpdateTeacherInfoResponse,
 	if err != nil {
 		log.Println("Error finding and updating teacher info: ", err.Error())
 		return updateTeacherInfoResponse, nil
+	}
+
+	if req.PublicKey != "" {
+		teacherID := teacherResult.TeacherID
+		formattedTeacherID := strings.ReplaceAll(teacherID, "-", "_")
+		savePublicKey(formattedTeacherID, req.PublicKey)
 	}
 
 	return updateTeacherInfoResponse, nil
@@ -1164,10 +1179,6 @@ func updateStudentInfo(req UpdateStudentInfoRequest) (UpdateStudentInfoResponse,
 		update["timezone"] = req.TimeZone
 	}
 
-	if req.PublicKey != "" {
-		update["publickey"] = req.PublicKey
-	}
-
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -1201,6 +1212,12 @@ func updateStudentInfo(req UpdateStudentInfoRequest) (UpdateStudentInfoResponse,
 	student.ThemeMode = studentResult.ThemeMode
 	student.FontStyle = studentResult.FontStyle
 	student.TimeZone = studentResult.TimeZone
+
+	if req.PublicKey != "" {
+		studentID := studentResult.StudentId
+		formattedStudentID := strings.ReplaceAll(studentID, "-", "_")
+		savePublicKey(formattedStudentID, req.PublicKey)
+	}
 
 	return student, nil
 }
@@ -1295,4 +1312,45 @@ func handleUploadProfileImage(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, `{"imageURL": "%s"}`, imageURL)
+}
+
+func savePublicKey(userID, publicKey string) error {
+	dir := "./keys"
+	os.MkdirAll(dir, os.ModePerm)
+	filePath := filepath.Join(dir, fmt.Sprintf("%s.pem", userID))
+	return os.WriteFile(filePath, []byte(publicKey), 0644)
+}
+
+func loadPublicKey(userID string) (*rsa.PublicKey, error) {
+	filePath := fmt.Sprintf("./keys/%s.pem", userID)
+	publicKeyData, err := os.ReadFile(filePath)
+	if err != nil {
+		return nil, err
+	}
+
+	block, _ := pem.Decode(publicKeyData)
+	if block == nil || block.Type != "RSA PUBLIC KEY" {
+		return nil, fmt.Errorf("Failed to decode PEM block containing public key")
+	}
+
+	return x509.ParsePKCS1PublicKey(block.Bytes)
+}
+
+func generateAndEncryptSymmetricKey(userID string) (string, error) {
+	publicKey, err := loadPublicKey(userID)
+	if err != nil {
+		return "", fmt.Errorf("Failed to load public key: %v", err)
+	}
+
+	symmetricKey := make([]byte, 32)
+	if _, err := rand.Read(symmetricKey); err != nil {
+		return "", fmt.Errorf("Failed to generate symmetric key: %v", err)
+	}
+
+	encryptedKey, err := rsa.EncryptOAEP(sha256.New(), rand.Reader, publicKey, symmetricKey, nil)
+	if err != nil {
+		return "", fmt.Errorf("Failed to encrypt symmetric key: %v", err)
+	}
+
+	return base64.StdEncoding.EncodeToString(encryptedKey), nil
 }

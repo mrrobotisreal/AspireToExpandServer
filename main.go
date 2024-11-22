@@ -7,8 +7,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"golang.org/x/crypto/bcrypt"
+	"io"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/google/uuid"
@@ -58,6 +61,7 @@ type CreateNewStudentLoginRequest struct {
 	Password           string `json:"password"`
 	NativeLanguage     string `json:"native_language"`
 	PreferredLanguage  string `json:"preferred_language"`
+	ProfilePictureURL  string `json:"profile_picture_url"`
 	ProfilePicturePath string `json:"profile_picture_path"`
 	ThemeMode          string `json:"theme_mode"`
 	FontStyle          string `json:"font_style"`
@@ -85,6 +89,7 @@ type ValidateLoginResponse struct {
 	NativeLanguage     string `json:"native_language"`
 	PreferredLanguage  string `json:"preferred_language"`
 	StudentSince       string `json:"student_since"`
+	ProfilePictureURL  string `json:"profile_picture_url"`
 	ProfilePicturePath string `json:"profile_picture_path"`
 	ThemeMode          string `json:"theme_mode"`
 	FontStyle          string `json:"font_style"`
@@ -100,6 +105,7 @@ type UpdateStudentInfoRequest struct {
 	NativeLanguage     string `json:"native_language"`
 	PreferredLanguage  string `json:"preferred_language"`
 	StudentSince       string `json:"student_since"`
+	ProfilePictureURL  string `json:"profile_picture_url"`
 	ProfilePicturePath string `json:"profile_picture_path"`
 	ThemeMode          string `json:"theme_mode"`
 	FontStyle          string `json:"font_style"`
@@ -116,6 +122,7 @@ type UpdateStudentInfoResponse struct {
 	NativeLanguage     string `json:"native_language"`
 	PreferredLanguage  string `json:"preferred_language"`
 	StudentSince       string `json:"student_since"`
+	ProfilePictureURL  string `json:"profile_picture_url"`
 	ProfilePicturePath string `json:"profile_picture_path"`
 	ThemeMode          string `json:"theme_mode"`
 	FontStyle          string `json:"font_style"`
@@ -212,6 +219,10 @@ func main() {
 	http.HandleFunc("/teachers/update", updateTeacherInfoHandler)
 	http.HandleFunc("/students/update", updateStudentInfoHandler)
 	http.HandleFunc("/students", handleFetchAllStudents)
+	http.HandleFunc("/students/update/image", handleUploadProfileImage)
+
+	// Serve profile images
+	http.Handle("/uploads/profileImages/", http.StripPrefix("/uploads/profileImages", http.FileServer(http.Dir("./uploads/profileImages"))))
 
 	fmt.Println("Server running on port 8888...")
 	//if err := http.ListenAndServe(":8888", enableCors(http.DefaultServeMux)); err != nil {
@@ -470,6 +481,7 @@ type Student struct {
 	NativeLanguage     string `json:"native_language"`
 	PreferredLanguage  string `json:"preferred_language"`
 	StudentSince       string `json:"student_since"`
+	ProfilePictureURL  string `json:"profile_picture_url"`
 	ProfilePicturePath string `json:"profile_picture_path"`
 	ThemeMode          string `json:"theme_mode"`
 	FontStyle          string `json:"font_style"`
@@ -485,6 +497,7 @@ func createNewStudent(req CreateNewStudentLoginRequest) (string, error) {
 	newStudent.EmailAddress = req.EmailAddress
 	newStudent.NativeLanguage = req.NativeLanguage
 	newStudent.PreferredLanguage = req.PreferredLanguage
+	newStudent.ProfilePictureURL = req.ProfilePictureURL
 	newStudent.ProfilePicturePath = req.ProfilePicturePath
 	newStudent.ThemeMode = req.ThemeMode
 	newStudent.FontStyle = req.FontStyle
@@ -563,6 +576,7 @@ func validateLoginHandler(w http.ResponseWriter, r *http.Request) {
 		NativeLanguage:     result.StudentInfo.NativeLanguage,
 		PreferredLanguage:  result.StudentInfo.PreferredLanguage,
 		StudentSince:       result.StudentInfo.StudentSince,
+		ProfilePictureURL:  result.StudentInfo.ProfilePictureURL,
 		ProfilePicturePath: result.StudentInfo.ProfilePicturePath,
 		ThemeMode:          result.StudentInfo.ThemeMode,
 		FontStyle:          result.StudentInfo.FontStyle,
@@ -588,6 +602,7 @@ func validateLogin(req ValidateLoginRequest) (ValidateLoginResult, error) {
 		NativeLanguage:     "",
 		PreferredLanguage:  "",
 		StudentSince:       "",
+		ProfilePictureURL:  "",
 		ProfilePicturePath: "",
 		ThemeMode:          "",
 		FontStyle:          "",
@@ -620,6 +635,7 @@ func validateLogin(req ValidateLoginRequest) (ValidateLoginResult, error) {
 	student.NativeLanguage = studentResult.NativeLanguage
 	student.PreferredLanguage = studentResult.PreferredLanguage
 	student.StudentSince = studentResult.StudentSince
+	student.ProfilePictureURL = studentResult.ProfilePictureURL
 	student.ProfilePicturePath = studentResult.ProfilePicturePath
 	student.ThemeMode = studentResult.ThemeMode
 	student.FontStyle = studentResult.FontStyle
@@ -648,6 +664,7 @@ type Teacher struct {
 	EmailAddress       string `json:"email_address"`
 	Password           string `json:"password"`
 	Salt               string `json:"salt"`
+	ProfilePictureURL  string `json:"profile_picture_url"`
 	ProfilePicturePath string `json:"profile_picture_path"`
 	ThemeMode          string `json:"theme_mode"`
 	FontStyle          string `json:"font_style"`
@@ -663,6 +680,7 @@ type CreateTeacherRequest struct {
 	PreferredLanguage  string `json:"preferred_language"`
 	EmailAddress       string `json:"email_address"`
 	Password           string `json:"password"`
+	ProfilePictureURL  string `json:"profile_picture_url"`
 	ProfilePicturePath string `json:"profile_picture_path"`
 	ThemeMode          string `json:"theme_mode"`
 	FontStyle          string `json:"font_style"`
@@ -677,6 +695,7 @@ type CreateTeacherResponse struct {
 	NativeLanguage     string `json:"native_language"`
 	PreferredLanguage  string `json:"preferred_language"`
 	EmailAddress       string `json:"email_address"`
+	ProfilePictureURL  string `json:"profile_picture_url"`
 	ProfilePicturePath string `json:"profile_picture_path"`
 	ThemeMode          string `json:"theme_mode"`
 	FontStyle          string `json:"font_style"`
@@ -711,6 +730,7 @@ func createTeacherHandler(w http.ResponseWriter, r *http.Request) {
 		NativeLanguage:     result.NativeLanguage,
 		PreferredLanguage:  result.PreferredLanguage,
 		EmailAddress:       result.EmailAddress,
+		ProfilePictureURL:  result.ProfilePictureURL,
 		ProfilePicturePath: result.ProfilePicturePath,
 		ThemeMode:          result.ThemeMode,
 		FontStyle:          result.FontStyle,
@@ -730,6 +750,7 @@ func createTeacher(req CreateTeacherRequest) (CreateTeacherResponse, error) {
 		NativeLanguage:     req.NativeLanguage,
 		PreferredLanguage:  req.PreferredLanguage,
 		EmailAddress:       req.EmailAddress,
+		ProfilePictureURL:  req.ProfilePictureURL,
 		ProfilePicturePath: req.ProfilePicturePath,
 		ThemeMode:          req.ThemeMode,
 		FontStyle:          req.FontStyle,
@@ -743,6 +764,7 @@ func createTeacher(req CreateTeacherRequest) (CreateTeacherResponse, error) {
 		NativeLanguage:     req.NativeLanguage,
 		PreferredLanguage:  req.PreferredLanguage,
 		EmailAddress:       req.EmailAddress,
+		ProfilePictureURL:  req.ProfilePictureURL,
 		ProfilePicturePath: req.ProfilePicturePath,
 		ThemeMode:          req.ThemeMode,
 		FontStyle:          req.FontStyle,
@@ -790,6 +812,7 @@ type UpdateTeacherInfoRequest struct {
 	NativeLanguage     string `json:"native_language"`
 	PreferredLanguage  string `json:"preferred_language"`
 	EmailAddress       string `json:"email_address"`
+	ProfilePictureURL  string `json:"profile_picture_url"`
 	ProfilePicturePath string `json:"profile_picture_path"`
 	ThemeMode          string `json:"theme_mode"`
 	FontStyle          string `json:"font_style"`
@@ -804,6 +827,7 @@ type UpdateTeacherInfoResponse struct {
 	NativeLanguage     string `json:"native_language"`
 	PreferredLanguage  string `json:"preferred_language"`
 	EmailAddress       string `json:"email_address"`
+	ProfilePictureURL  string `json:"profile_picture_url"`
 	ProfilePicturePath string `json:"profile_picture_path"`
 	ThemeMode          string `json:"theme_mode"`
 	FontStyle          string `json:"font_style"`
@@ -842,6 +866,7 @@ func updateTeacherInfo(req UpdateTeacherInfoRequest) (UpdateTeacherInfoResponse,
 		NativeLanguage:     req.NativeLanguage,
 		PreferredLanguage:  req.PreferredLanguage,
 		EmailAddress:       req.EmailAddress,
+		ProfilePictureURL:  req.ProfilePictureURL,
 		ProfilePicturePath: req.ProfilePicturePath,
 		ThemeMode:          req.ThemeMode,
 		FontStyle:          req.FontStyle,
@@ -856,6 +881,10 @@ func updateTeacherInfo(req UpdateTeacherInfoRequest) (UpdateTeacherInfoResponse,
 
 	if req.FontStyle != "" {
 		update["fontstyle"] = req.FontStyle
+	}
+
+	if req.ProfilePictureURL != "" {
+		update["profilepictureurl"] = req.ProfilePictureURL
 	}
 
 	if req.ProfilePicturePath != "" {
@@ -910,6 +939,7 @@ type ValidateTeacherLoginResponse struct {
 	NativeLanguage     string `json:"native_language"`
 	PreferredLanguage  string `json:"preferred_language"`
 	EmailAddress       string `json:"email_address"`
+	ProfilePictureURL  string `json:"profile_picture_url"`
 	ProfilePicturePath string `json:"profile_picture_path"`
 	ThemeMode          string `json:"theme_mode"`
 	FontStyle          string `json:"font_style"`
@@ -951,6 +981,7 @@ func validateTeacherLoginHandler(w http.ResponseWriter, r *http.Request) {
 		EmailAddress:       result.TeacherInfo.EmailAddress,
 		NativeLanguage:     result.TeacherInfo.NativeLanguage,
 		PreferredLanguage:  result.TeacherInfo.PreferredLanguage,
+		ProfilePictureURL:  result.TeacherInfo.ProfilePictureURL,
 		ProfilePicturePath: result.TeacherInfo.ProfilePicturePath,
 		ThemeMode:          result.TeacherInfo.ThemeMode,
 		FontStyle:          result.TeacherInfo.FontStyle,
@@ -975,6 +1006,7 @@ func validateTeacherLogin(req ValidateTeacherLoginRequest) (ValidateTeacherLogin
 		EmailAddress:       "",
 		NativeLanguage:     "",
 		PreferredLanguage:  "",
+		ProfilePictureURL:  "",
 		ProfilePicturePath: "",
 		ThemeMode:          "",
 		FontStyle:          "",
@@ -1006,6 +1038,7 @@ func validateTeacherLogin(req ValidateTeacherLoginRequest) (ValidateTeacherLogin
 	teacher.EmailAddress = teacherResult.EmailAddress
 	teacher.NativeLanguage = teacherResult.NativeLanguage
 	teacher.PreferredLanguage = teacherResult.PreferredLanguage
+	teacher.ProfilePictureURL = teacherResult.ProfilePictureURL
 	teacher.ProfilePicturePath = teacherResult.ProfilePicturePath
 	teacher.ThemeMode = teacherResult.ThemeMode
 	teacher.FontStyle = teacherResult.FontStyle
@@ -1039,6 +1072,7 @@ func updateStudentInfoHandler(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("UpdateStudentInfo request incoming...")
 	fmt.Println("req.EmailAddress: " + req.EmailAddress)
+	fmt.Println("req.ProfilePictureURL: " + req.ProfilePictureURL)
 	fmt.Println("req.ProfilePicturePath: " + req.ProfilePicturePath)
 	fmt.Println("req.ThemeMode: " + req.ThemeMode)
 	fmt.Println("req.FontStyle: " + req.FontStyle)
@@ -1059,6 +1093,7 @@ func updateStudentInfoHandler(w http.ResponseWriter, r *http.Request) {
 		NativeLanguage:     result.NativeLanguage,
 		PreferredLanguage:  result.PreferredLanguage,
 		StudentSince:       result.StudentSince,
+		ProfilePictureURL:  result.ProfilePictureURL,
 		ProfilePicturePath: result.ProfilePicturePath,
 		ThemeMode:          result.ThemeMode,
 		FontStyle:          result.FontStyle,
@@ -1079,6 +1114,7 @@ func updateStudentInfo(req UpdateStudentInfoRequest) (UpdateStudentInfoResponse,
 		NativeLanguage:     "",
 		PreferredLanguage:  "",
 		StudentSince:       "",
+		ProfilePictureURL:  "",
 		ProfilePicturePath: "",
 		ThemeMode:          "",
 		FontStyle:          "",
@@ -1093,6 +1129,10 @@ func updateStudentInfo(req UpdateStudentInfoRequest) (UpdateStudentInfoResponse,
 
 	if req.FontStyle != "" {
 		update["fontstyle"] = req.FontStyle
+	}
+
+	if req.ProfilePictureURL != "" {
+		update["profilepictureurl"] = req.ProfilePictureURL
 	}
 
 	if req.ProfilePicturePath != "" {
@@ -1118,7 +1158,11 @@ func updateStudentInfo(req UpdateStudentInfoRequest) (UpdateStudentInfoResponse,
 
 	// Query MongoDB
 	var studentResult Student
-	err := collection.FindOneAndUpdate(ctx, bson.M{"emailaddress": req.EmailAddress}, bson.M{
+	err := collection.FindOneAndUpdate(ctx, bson.M{
+		"$or": bson.M{
+			"emailaddress": req.EmailAddress, // add StudentID here later
+		},
+	}, bson.M{
 		"$set": update,
 	}).Decode(&studentResult)
 	if err != nil {
@@ -1135,6 +1179,7 @@ func updateStudentInfo(req UpdateStudentInfoRequest) (UpdateStudentInfoResponse,
 	student.NativeLanguage = studentResult.NativeLanguage
 	student.PreferredLanguage = studentResult.PreferredLanguage
 	student.StudentSince = studentResult.StudentSince
+	student.ProfilePictureURL = studentResult.ProfilePictureURL
 	student.ProfilePicturePath = studentResult.ProfilePicturePath
 	student.ThemeMode = studentResult.ThemeMode
 	student.FontStyle = studentResult.FontStyle
@@ -1170,10 +1215,11 @@ func fetchAllStudents() ([]bson.M, error) {
 	pipeline := mongo.Pipeline{
 		{{"$sort", bson.D{{"preferredname", 1}}}},
 		{{"$project", bson.M{
-			"preferredname": 1,
-			"studentid":     1,
-			"emailaddress":  1,
-			"_id":           0,
+			"preferredname":     1,
+			"studentid":         1,
+			"emailaddress":      1,
+			"profilepictureurl": 1,
+			"_id":               0,
 		}}},
 	}
 
@@ -1193,4 +1239,43 @@ func fetchAllStudents() ([]bson.M, error) {
 	fmt.Println(results)
 
 	return results, nil
+}
+
+func handleUploadProfileImage(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPut {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	err := r.ParseMultipartForm(10 << 20) // This limits images to 10MB
+	if err != nil {
+		http.Error(w, "Unable to parse form", http.StatusBadRequest)
+		return
+	}
+
+	file, handler, err := r.FormFile("image")
+	if err != nil {
+		http.Error(w, "Unable to retrieve file", http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+
+	savePath := filepath.Join("uploads", "profileImages", handler.Filename)
+	dst, err := os.Create(savePath)
+	if err != nil {
+		http.Error(w, "Unable to save file", http.StatusInternalServerError)
+		return
+	}
+	// defer dst.Close() // <- close doesn't exist?
+
+	_, err = io.Copy(dst, file)
+	if err != nil {
+		http.Error(w, "Unable to copy/save file", http.StatusInternalServerError)
+		return
+	}
+
+	imageURL := fmt.Sprintf("http://localhost:8888/uploads/profileImages/%s", handler.Filename)
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprintf(w, `{"imageURL": "%s"}`, imageURL)
 }

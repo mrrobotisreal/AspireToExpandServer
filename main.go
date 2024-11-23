@@ -931,9 +931,9 @@ func updateTeacherInfo(req UpdateTeacherInfoRequest) (UpdateTeacherInfoResponse,
 
 	var teacherResult Teacher
 	err := collection.FindOneAndUpdate(ctx, bson.M{
-		"$or": bson.M{
-			"teacherID":    req.TeacherID,
-			"emailaddress": req.EmailAddress,
+		"$or": []bson.M{
+			{"teacherID": req.TeacherID},
+			{"emailaddress": req.EmailAddress},
 		},
 	}, bson.M{
 		"$set": update,
@@ -1187,8 +1187,8 @@ func updateStudentInfo(req UpdateStudentInfoRequest) (UpdateStudentInfoResponse,
 	// Query MongoDB
 	var studentResult Student
 	err := collection.FindOneAndUpdate(ctx, bson.M{
-		"$or": bson.M{
-			"emailaddress": req.EmailAddress, // add StudentID here later
+		"$or": []bson.M{
+			{"emailaddress": req.EmailAddress}, // add StudentID here later
 		},
 	}, bson.M{
 		"$set": update,

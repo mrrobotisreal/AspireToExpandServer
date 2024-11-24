@@ -1,4 +1,4 @@
-module AspireWithAlinaServer
+module io.winapps.aspirewithalina.aspirewithalinaserver
 
 go 1.23.2
 

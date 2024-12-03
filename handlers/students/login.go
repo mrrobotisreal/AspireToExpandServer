@@ -80,7 +80,7 @@ func validateLogin(req types.ValidateLoginRequest) (types.ValidateLoginResult, e
 		StudentInfo: student,
 	}
 	// Check MongoDB for the registration code
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	collection := db.MongoClient.Database(db.DbName).Collection(db.StudentsCollection)
@@ -133,8 +133,10 @@ func ValidateGoogleLoginHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
+	fmt.Println("Email: " + req.Email)
+	fmt.Println("EmailVerified: " + req.EmailVerified)
 
-	if !req.EmailVerified {
+	if req.EmailVerified != "true" {
 		http.Error(w, "Email not verified", http.StatusBadRequest)
 		fmt.Println("Email not verified...")
 		return
@@ -169,7 +171,7 @@ func validateGoogleLogin(req types.ValidateGoogleLoginRequest) (types.ValidateLo
 		TimeZone:           "",
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	collection := db.MongoClient.Database(db.DbName).Collection(db.StudentsCollection)

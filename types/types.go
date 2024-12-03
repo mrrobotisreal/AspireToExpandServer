@@ -221,7 +221,7 @@ type ValidateLoginResult struct {
 
 type ValidateGoogleLoginRequest struct {
 	Email         string `json:"email"`
-	EmailVerified bool   `json:"email_verified"`
+	EmailVerified string `json:"email_verified"`
 	// Later add picture and name and JWT here
 }
 

@@ -41,7 +41,7 @@ func HandleUploadProfileImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	imageURL := fmt.Sprintf("http://%s:8888/uploads/profileImages/%s", os.Getenv("IP_ADDRESS"), handler.Filename)
+	imageURL := fmt.Sprintf("https://%s:8888/uploads/profileImages/%s", os.Getenv("IP_ADDRESS"), handler.Filename)
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, `{"imageURL": "%s"}`, imageURL)

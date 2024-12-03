@@ -80,7 +80,7 @@ func validateLogin(req types.ValidateLoginRequest) (types.ValidateLoginResult, e
 		StudentInfo: student,
 	}
 	// Check MongoDB for the registration code
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	collection := db.MongoClient.Database(db.DbName).Collection(db.StudentsCollection)
@@ -171,7 +171,7 @@ func validateGoogleLogin(req types.ValidateGoogleLoginRequest) (types.ValidateLo
 		TimeZone:           "",
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	collection := db.MongoClient.Database(db.DbName).Collection(db.StudentsCollection)

@@ -219,6 +219,12 @@ type ValidateLoginResult struct {
 	StudentInfo ValidateLoginResponse `json:"student_info"`
 }
 
+type ValidateGoogleLoginRequest struct {
+	Email         string `json:"email"`
+	EmailVerified bool   `json:"email_verified"`
+	// Later add picture and name and JWT here
+}
+
 // UpdateStudentInfoRequest Struct to handle incoming updates to student info
 type UpdateStudentInfoRequest struct {
 	FirstName          string `json:"first_name"`

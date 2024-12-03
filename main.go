@@ -48,7 +48,7 @@ func main() {
 	http.Handle("/uploads/profileImages/", http.StripPrefix("/uploads/profileImages", http.FileServer(http.Dir("./uploads/profileImages"))))
 
 	certFile := "/etc/letsencrypt/live/aspirewithalina.com/fullchain.pem"
-	keyFile := "/etc/letsencrypt/live/aspirewithalina.com/prikey.pem"
+	keyFile := "/etc/letsencrypt/live/aspirewithalina.com/privkey.pem"
 
 	fmt.Println("Server running on port 8888...")
 	//if err := http.ListenAndServe(":8888", enableCors(http.DefaultServeMux)); err != nil {

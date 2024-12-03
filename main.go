@@ -47,12 +47,20 @@ func main() {
 	// Serve profile images
 	http.Handle("/uploads/profileImages/", http.StripPrefix("/uploads/profileImages", http.FileServer(http.Dir("./uploads/profileImages"))))
 
+	certFile := "/etc/letsencrypt/live/aspirewithalina.com/fullchain.pem"
+	keyFile := "/etc/letsencrypt/live/aspirewithalina.com/prikey.pem"
+
 	fmt.Println("Server running on port 8888...")
 	//if err := http.ListenAndServe(":8888", enableCors(http.DefaultServeMux)); err != nil {
 	//	log.Fatal(err)
 	//}
-	if err := http.ListenAndServe(":8888", nil); err != nil {
-		log.Fatal(err)
+
+	//if err := http.ListenAndServe(":8888", nil); err != nil {
+	//	log.Fatal(err)
+	//}
+
+	if err := http.ListenAndServeTLS(":8888", certFile, keyFile, nil); err != nil {
+		log.Fatalf("Failed to start TLS server: %v", err)
 	}
 }
 

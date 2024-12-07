@@ -85,7 +85,7 @@ func updateTeacherInfo(req types.UpdateTeacherInfoRequest) (types.UpdateTeacherI
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	collection := db.MongoClient.Database(db.DbName).Collection(db.StudentsCollection)
+	collection := db.MongoClient.Database(db.DbName).Collection(db.TeachersCollection)
 
 	var teacherResult types.Teacher
 	err := collection.FindOneAndUpdate(ctx, bson.M{

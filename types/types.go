@@ -1,9 +1,7 @@
 package types
 
-import "time"
-
 type Student struct {
-	StudentId          string `json:"student_id"`
+	StudentId          string `json:"student_id"` // TODO: Update to be like TeacherID; needs done in Electron apps too
 	FirstName          string `json:"first_name"`
 	PreferredName      string `json:"preferred_name"`
 	LastName           string `json:"last_name"`
@@ -18,6 +16,8 @@ type Student struct {
 	ThemeMode          string `json:"theme_mode"`
 	FontStyle          string `json:"font_style"`
 	TimeZone           string `json:"time_zone"`
+	LessonsRemaining   int32  `json:"lessons_remaining"`
+	LessonsCompleted   int32  `json:"lessons_completed"`
 }
 
 type Teacher struct {
@@ -184,11 +184,13 @@ type CreateNewStudentLoginRequest struct {
 	FontStyle          string `json:"font_style"`
 	TimeZone           string `json:"time_zone"`
 	PublicKey          string `json:"public_key"`
+	LessonsRemaining   int32  `json:"lessons_remaining"`
+	LessonsCompleted   int32  `json:"lessons_completed"`
 }
 
 // CreateNewStudentResponse Struct to handle outgoing create new student response
 type CreateNewStudentResponse struct {
-	StudentId string `json:"student_id"`
+	StudentId string `json:"student_id"` // TODO: Update to be like TeacherID; needs done in Electron apps too
 }
 
 // ValidateLoginRequest Struct to handle incoming login request
@@ -199,7 +201,7 @@ type ValidateLoginRequest struct {
 
 // ValidateLoginResponse Struct to handle outgoing login response
 type ValidateLoginResponse struct {
-	StudentId          string `json:"student_id"`
+	StudentId          string `json:"student_id"` // TODO: Update to be like TeacherID; needs done in Electron apps too
 	FirstName          string `json:"first_name"`
 	PreferredName      string `json:"preferred_name"`
 	LastName           string `json:"last_name"`
@@ -212,6 +214,8 @@ type ValidateLoginResponse struct {
 	ThemeMode          string `json:"theme_mode"`
 	FontStyle          string `json:"font_style"`
 	TimeZone           string `json:"time_zone"`
+	LessonsRemaining   int32  `json:"lessons_remaining"`
+	LessonsCompleted   int32  `json:"lessons_completed"`
 }
 
 type ValidateLoginResult struct {
@@ -240,11 +244,13 @@ type UpdateStudentInfoRequest struct {
 	FontStyle          string `json:"font_style"`
 	TimeZone           string `json:"time_zone"`
 	PublicKey          string `json:"public_key"`
+	LessonsRemaining   int32  `json:"lessons_remaining"`
+	LessonsCompleted   int32  `json:"lessons_completed"`
 }
 
 // UpdateStudentInfoResponse Struct to handle outgoing response after updating student info
 type UpdateStudentInfoResponse struct {
-	StudentId          string `json:"student_id"`
+	StudentId          string `json:"student_id"` // TODO: Update to be like TeacherID; needs done in Electron apps too
 	FirstName          string `json:"first_name"`
 	PreferredName      string `json:"preferred_name"`
 	LastName           string `json:"last_name"`
@@ -257,38 +263,116 @@ type UpdateStudentInfoResponse struct {
 	ThemeMode          string `json:"theme_mode"`
 	FontStyle          string `json:"font_style"`
 	TimeZone           string `json:"time_zone"`
+	LessonsRemaining   int32  `json:"lessons_remaining"`
+	LessonsCompleted   int32  `json:"lessons_completed"`
+}
+
+// Lesson struct to be stored in lessonsCollection
+type Lesson struct {
+	LessonID          string `json:"lessonID"`
+	TeacherID         string `json:"teacherID"`
+	StudentId         string `json:"student_id"` // TODO: Update to be like TeacherID; needs done in Electron apps too
+	Subject           string `json:"subject"`
+	ScheduledDateTime int64  `json:"scheduled_date_time"`
+	Room              int32  `json:"room"`
+	IsCanceled        bool   `json:"is_canceled"`
+	IsCompleted       bool   `json:"is_completed"`
+	TimesRescheduled  int32  `json:"times_rescheduled"`
+	IsStudentLate     bool   `json:"is_student_late"`    // Only true when 5 minutes or more late
+	IsTeacherLate     bool   `json:"is_teacher_late"`    // Only true when 5 minutes or more late
+	IsConnectionLost  bool   `json:"is_connection_lost"` // Need to really think about this implementation
+}
+
+// CreateLessonRequest struct to handle incoming request for creating a new lesson
+type CreateLessonRequest struct {
+	TeacherID         string `json:"teacherID"`
+	StudentId         string `json:"student_id"` // TODO: Update to be like TeacherID; needs done in Electron apps too
+	Subject           string `json:"subject"`
+	ScheduledDateTime int64  `json:"scheduled_date_time"`
+	Room              int32  `json:"room"`
+}
+
+// CreateLessonResponse struct to handle outgoing response for creating a new lesson
+type CreateLessonResponse struct {
+	Lesson Lesson `json:"lesson"`
+}
+
+// UpdateLessonRequest struct to handle incoming request for updating an existing lesson
+type UpdateLessonRequest struct {
+	LessonID          string `json:"lessonID"`
+	Subject           string `json:"subject"`
+	ScheduledDateTime int64  `json:"scheduled_date_time"`
+	Room              int32  `json:"room"`
+	IsCanceled        bool   `json:"is_canceled"`
+	IsCompleted       bool   `json:"is_completed"`
+	TimesRescheduled  int32  `json:"times_rescheduled"`
+	IsStudentLate     bool   `json:"is_student_late"`    // Only true when 5 minutes or more late
+	IsTeacherLate     bool   `json:"is_teacher_late"`    // Only true when 5 minutes or more late
+	IsConnectionLost  bool   `json:"is_connection_lost"` // Need to really think about this implementation
+}
+
+// UpdateLessonResponse struct to handle outgoing response for updating an existing lesson
+type UpdateLessonResponse struct {
+	Lesson Lesson `json:"lesson"`
+}
+
+// DeleteLessonRequest struct to handle incoming request for deleting an existing lesson
+type DeleteLessonRequest struct {
+	LessonID string `json:"lessonID"`
+}
+
+// DeleteLessonResponse struct to handle outgoing response for deleting an existing lesson
+type DeleteLessonResponse struct {
+	IsDeleted bool `json:"is_deleted"`
+}
+
+// ListLessonsRequest struct to handle incoming request for listing lessons
+type ListLessonsRequest struct {
+	UserID      string `json:"ID"` // This is just "UserID" because teacherID and studentID will be used interchangeably
+	Page        int64  `json:"page"`
+	Limit       int64  `json:"limit"`
+	IsCanceled  bool   `json:"is_canceled"`  // IsCanceled=true & IsCompleted=false returns only canceled classes
+	IsCompleted bool   `json:"is_completed"` // IsCanceled=false & IsCompleted=true returns only completed classes,
+	// IsCanceled=false & IsCompleted=false returns only upcoming classes
+}
+
+// ListLessonsResponse struct to handle outgoing response for listing lessons
+type ListLessonResponse struct {
+	Lessons []Lesson `json:"lessons"`
+	Page    int64    `json:"page"`
 }
 
 // Assignment Struct to be stored in studentAssignmentsCollection
 type Assignment struct {
-	Title         string    `json:"title"`
-	Subject       string    `json:"subject"`
-	DocumentUrl   string    `json:"document_url"`
-	DateAssigned  time.Time `json:"date_assigned"`
-	DateStarted   time.Time `json:"date_started"`
-	DateCompleted time.Time `json:"date_completed"`
+	AssignmentID  string `json:"assignmentID"`
+	Title         string `json:"title"`
+	Subject       string `json:"subject"`
+	DocumentUrl   string `json:"document_url"`
+	DateAssigned  int64  `json:"date_assigned"`
+	DateStarted   int64  `json:"date_started"`
+	DateCompleted int64  `json:"date_completed"`
 }
 
 // StudentAssignments Struct
 type StudentAssignments struct {
-	StudentId   string       `json:"student_id"`
-	Assignments []Assignment `json:"assignments"`
+	StudentId   string       `json:"student_id"`  // TODO: Update to be like TeacherID; needs done in Electron apps too
+	Assignments []Assignment `json:"assignments"` // TODO: Probably remove this and change it to array of string IDs so it's not too large
 }
 
 // SpaceShooterGame Struct to be stored in studentGamesCollection for SpaceShooter
 type SpaceShooterGame struct {
-	Level         string    `json:"level"`
-	Score         int       `json:"score"`
-	DateStarted   time.Time `json:"date_started"`
-	DateCompleted time.Time `json:"date_completed"`
+	Level         string `json:"level"`
+	Score         int    `json:"score"`
+	DateStarted   int64  `json:"date_started"`
+	DateCompleted int64  `json:"date_completed"`
 }
 
 // WordioGame Struct to be stored in studentGamesCollection for Wordio
 type WordioGame struct {
-	Level         string    `json:"level"`
-	Score         int       `json:"score"`
-	DateStarted   time.Time `json:"date_started"`
-	DateCompleted time.Time `json:"date_completed"`
+	Level         string `json:"level"`
+	Score         int    `json:"score"`
+	DateStarted   int64  `json:"date_started"`
+	DateCompleted int64  `json:"date_completed"`
 }
 
 // SpellingPuddlesWord Struct word for SpellingPuddlesGame
@@ -300,15 +384,15 @@ type SpellingPuddlesWord struct {
 
 // SpellingPuddlesGame Struct to be stored in studentGamesCollection for SpellingPuddles
 type SpellingPuddlesGame struct {
-	Level         string    `json:"level"`
-	Score         int       `json:"score"`
-	DateStarted   time.Time `json:"date_started"`
-	DateCompleted time.Time `json:"date_completed"`
+	Level         string `json:"level"`
+	Score         int    `json:"score"`
+	DateStarted   int64  `json:"date_started"`
+	DateCompleted int64  `json:"date_completed"`
 }
 
 // StudentGames Struct
 type StudentGames struct {
-	StudentId       string                `json:"student_id"`
+	StudentId       string                `json:"student_id"`       // TODO: Update to be like TeacherID; needs done in Electron apps too
 	SpaceShooter    []SpaceShooterGame    `json:"space_shooter"`    // Well... a Space Shooter game lol
 	Wordio          []WordioGame          `json:"wordio"`           // Mario-like game
 	SpellingPuddles []SpellingPuddlesGame `json:"spelling_puddles"` // Rain drops containing characters fall down to spell words game

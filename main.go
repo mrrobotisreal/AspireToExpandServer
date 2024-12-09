@@ -43,6 +43,7 @@ func main() {
 	http.HandleFunc("/students/update", studentsHandlers.UpdateStudentInfoHandler)
 	http.HandleFunc("/students", studentsHandlers.HandleFetchAllStudents)
 	http.HandleFunc("/students/update/image", handlers.HandleUploadProfileImage)
+	http.HandleFunc("/students/delete", studentsHandlers.HandleDeleteStudent)
 
 	// Serve profile images
 	http.Handle("/uploads/profileImages/", http.StripPrefix("/uploads/profileImages", http.FileServer(http.Dir("./uploads/profileImages"))))

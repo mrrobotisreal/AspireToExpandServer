@@ -267,6 +267,16 @@ type UpdateStudentInfoResponse struct {
 	LessonsCompleted   int32  `json:"lessons_completed"`
 }
 
+// DeleteStudentRequest struct to handle incoming request to delete a student
+type DeleteStudentRequest struct {
+	StudentId string `json:"student_id"` // TODO: Update to be like TeacherID; needs done in Electron apps too
+}
+
+// DeleteStudentResponse struct to handle outgoing response to delete a student
+type DeleteStudentResponse struct {
+	IsDeleted bool `json:"is_deleted"`
+}
+
 // Lesson struct to be stored in lessonsCollection
 type Lesson struct {
 	LessonID          string `json:"lessonID"`

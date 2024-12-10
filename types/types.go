@@ -69,6 +69,14 @@ type CreateTeacherResponse struct {
 	TimeZone           string `json:"time_zone"`
 }
 
+type GetTeacherRequest struct {
+	TeacherID string `json:"teacherID"`
+}
+
+type GetTeacherResponse struct {
+	Teacher Teacher `json:"teacher"`
+}
+
 type UpdateTeacherInfoRequest struct {
 	TeacherID          string `json:"teacherID"`
 	FirstName          string `json:"first_name"`

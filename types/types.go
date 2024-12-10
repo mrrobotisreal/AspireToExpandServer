@@ -116,6 +116,14 @@ type ListTeachersResponse struct {
 	Teachers []Teacher `json:"teachers"`
 }
 
+// DeleteTeacherRequest struct to handle incoming request to delete a teacher
+type DeleteTeacherRequest struct{}
+
+// DeleteTeacherResponse struct to handle outgoing response to delete a teacher
+type DeleteTeacherResponse struct {
+	IsDeleted bool `json:"is_deleted"`
+}
+
 type ValidateTeacherLoginRequest struct {
 	EmailAddress string `json:"email_address"`
 	Password     string `json:"password"`

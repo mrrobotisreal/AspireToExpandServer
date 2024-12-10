@@ -13,19 +13,46 @@ import (
 )
 
 func ListLessonsHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
+	if r.Method != http.MethodGet {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
 	}
 
-	var req types.ListLessonsRequest
-	err := json.NewDecoder(r.Body).Decode(&req)
-	if err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+	var isCanceled bool
+	var isCompleted bool
+	isCanceledStr := r.URL.Query().Get("isCanceled")
+	isCompletedStr := r.URL.Query().Get("isCompleted")
+
+	if isCanceledStr == "" {
+		http.Error(w, "Invalid request query, \"isCanceled\" cannot be empty", http.StatusBadRequest)
 		return
 	}
+	if isCompletedStr == "" {
+		http.Error(w, "Invalid request query, \"isCompleted\" cannot be empty", http.StatusBadRequest)
+		return
+	}
+	if isCanceledStr != "false" && isCanceledStr != "true" {
+		http.Error(w, "Invalid request query, \"isCanceled\" must be either \"true\" or \"false\"", http.StatusBadRequest)
+		return
+	}
+	if isCompletedStr != "false" && isCompletedStr != "true" {
+		http.Error(w, "Invalid request query, \"isCompleted\" must be either \"true\" or \"false\"", http.StatusBadRequest)
+		return
+	}
+	if isCanceledStr == "true" {
+		isCanceled = true
+	}
+	if isCanceledStr == "false" {
+		isCanceled = false
+	}
+	if isCompletedStr == "true" {
+		isCompleted = true
+	}
+	if isCompletedStr == "false" {
+		isCompleted = false
+	}
 
-	response, err := listLessons(req)
+	response, err := listLessons(isCanceled, isCompleted)
 	if err != nil {
 		http.Error(w, "Error listing the lessons", http.StatusInternalServerError)
 		return
@@ -35,15 +62,15 @@ func ListLessonsHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-func listLessons(req types.ListLessonsRequest) (types.ListLessonsResponse, error) {
+func listLessons(isCanceled, isCompleted bool) (types.ListLessonsResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	collection := db.MongoClient.Database(db.DbName).Collection(db.LessonsCollection)
 	pipeline := mongo.Pipeline{
 		{{"$match", bson.M{
-			"iscanceled":  req.IsCanceled,
-			"iscompleted": req.IsCompleted,
+			"iscanceled":  isCanceled,
+			"iscompleted": isCompleted,
 		}}},
 		{{"$sort", bson.D{{"scheduleddatetime", -1}}}},
 		{{"$project", bson.M{

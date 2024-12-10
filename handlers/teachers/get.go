@@ -16,15 +16,9 @@ func GetTeacherHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
 	}
+	teacherID := r.URL.Query().Get("teacherID")
 
-	var req types.GetTeacherRequest
-	err := json.NewDecoder(r.Body).Decode(&req)
-	if err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
-	}
-
-	response, err := getTeacher(req.TeacherID)
+	response, err := getTeacher(teacherID)
 	if err != nil {
 		http.Error(w, "Error getting teacher info", http.StatusInternalServerError)
 		return

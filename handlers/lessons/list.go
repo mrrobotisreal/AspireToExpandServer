@@ -47,9 +47,9 @@ func listLessons(req types.ListLessonsRequest) (types.ListLessonsResponse, error
 		}}},
 		{{"$sort", bson.D{{"scheduleddatetime", -1}}}},
 		{{"$project", bson.M{
-			"lessonID":          1,
-			"teacherID":         1,
-			"studentID":         1,
+			"lessonid":          1,
+			"teacherid":         1,
+			"studentid":         1,
 			"subject":           1,
 			"scheduleddatetime": 1,
 			"room":              1,

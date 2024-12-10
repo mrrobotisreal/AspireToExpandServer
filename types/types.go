@@ -100,6 +100,14 @@ type UpdateTeacherInfoResponse struct {
 	TimeZone           string `json:"time_zone"`
 }
 
+// ListTeachersRequest struct to handle incoming request for listing all teachers
+type ListTeachersRequest struct{}
+
+// ListTeachersResponse struct to handle outgoing response for listing all teachers
+type ListTeachersResponse struct {
+	Teachers []Teacher `json:"teachers"`
+}
+
 type ValidateTeacherLoginRequest struct {
 	EmailAddress string `json:"email_address"`
 	Password     string `json:"password"`

@@ -29,6 +29,14 @@ type ListStudentsResponse struct {
 	Page     int64     `json:"page"`
 }
 
+// GetStudentRequest struct to handle incoming request for a student
+type GetStudentRequest struct{}
+
+// GetStudentResponse struct to handle outgoing response for a student
+type GetStudentResponse struct {
+	Student Student `json:"student"`
+}
+
 type Teacher struct {
 	TeacherID          string `json:"teacherID"`
 	FirstName          string `json:"first_name"`

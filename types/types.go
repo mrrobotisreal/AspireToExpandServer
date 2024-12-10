@@ -1,5 +1,6 @@
 package types
 
+// Student struct that determines how students will be stored in the database
 type Student struct {
 	StudentId          string `json:"student_id"` // TODO: Update to be like TeacherID; needs done in Electron apps too
 	FirstName          string `json:"first_name"`
@@ -8,6 +9,25 @@ type Student struct {
 	EmailAddress       string `json:"email_address"`
 	Password           string `json:"password"`
 	Salt               string `json:"salt"`
+	NativeLanguage     string `json:"native_language"`
+	PreferredLanguage  string `json:"preferred_language"`
+	StudentSince       string `json:"student_since"`
+	ProfilePictureURL  string `json:"profile_picture_url"`
+	ProfilePicturePath string `json:"profile_picture_path"`
+	ThemeMode          string `json:"theme_mode"`
+	FontStyle          string `json:"font_style"`
+	TimeZone           string `json:"time_zone"`
+	LessonsRemaining   int64  `json:"lessons_remaining"`
+	LessonsCompleted   int64  `json:"lessons_completed"`
+}
+
+// StudentInfo struct that determines the info that can be retrieved about a student securely (i.e. no passwords, salts, etc.)
+type StudentInfo struct {
+	StudentId          string `json:"student_id"` // TODO: Update to be like TeacherID; needs done in Electron apps too
+	FirstName          string `json:"first_name"`
+	PreferredName      string `json:"preferred_name"`
+	LastName           string `json:"last_name"`
+	EmailAddress       string `json:"email_address"`
 	NativeLanguage     string `json:"native_language"`
 	PreferredLanguage  string `json:"preferred_language"`
 	StudentSince       string `json:"student_since"`
@@ -34,9 +54,10 @@ type GetStudentRequest struct{}
 
 // GetStudentResponse struct to handle outgoing response for a student
 type GetStudentResponse struct {
-	Student Student `json:"student"`
+	Student StudentInfo `json:"student"`
 }
 
+// Teacher struct that determines how a teacher is stored in the database
 type Teacher struct {
 	TeacherID          string `json:"teacherID"`
 	FirstName          string `json:"first_name"`
@@ -47,6 +68,23 @@ type Teacher struct {
 	EmailAddress       string `json:"email_address"`
 	Password           string `json:"password"`
 	Salt               string `json:"salt"`
+	ProfilePictureURL  string `json:"profile_picture_url"`
+	ProfilePicturePath string `json:"profile_picture_path"`
+	ThemeMode          string `json:"theme_mode"`
+	FontStyle          string `json:"font_style"`
+	TimeZone           string `json:"time_zone"`
+	LessonsTaught      int64  `json:"lessons_taught"`
+}
+
+// TeacherInfo struct that determines the info that can be retrieved about a teacher securely (i.e. no passwords, salts, etc.)
+type TeacherInfo struct {
+	TeacherID          string `json:"teacherID"`
+	FirstName          string `json:"first_name"`
+	PreferredName      string `json:"preferred_name"`
+	LastName           string `json:"last_name"`
+	NativeLanguage     string `json:"native_language"`
+	PreferredLanguage  string `json:"preferred_language"`
+	EmailAddress       string `json:"email_address"`
 	ProfilePictureURL  string `json:"profile_picture_url"`
 	ProfilePicturePath string `json:"profile_picture_path"`
 	ThemeMode          string `json:"theme_mode"`
@@ -93,7 +131,7 @@ type GetTeacherRequest struct {
 }
 
 type GetTeacherResponse struct {
-	Teacher Teacher `json:"teacher"`
+	Teacher TeacherInfo `json:"teacher"`
 }
 
 type UpdateTeacherInfoRequest struct {

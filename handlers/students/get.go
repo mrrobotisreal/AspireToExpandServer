@@ -41,7 +41,7 @@ func getStudent(studentID string) (types.GetStudentResponse, error) {
 
 	fmt.Println("Getting student", studentID, "from the database...")
 	collection := db.MongoClient.Database(db.DbName).Collection(db.StudentsCollection)
-	var studentResult types.Student
+	var studentResult types.StudentInfo
 	err := collection.FindOne(ctx, bson.M{"studentid": studentID}).Decode(&studentResult)
 	if err != nil {
 		fmt.Println("Error finding student in the database:", err)

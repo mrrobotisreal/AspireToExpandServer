@@ -16,8 +16,10 @@ func GetTeacherHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
 	}
+	fmt.Println("Incoming GetTeacher request...")
+
 	teacherID := r.URL.Query().Get("teacherID")
-	fmt.Println("?teacherID=", teacherID)
+	fmt.Println("For TeacherID:", teacherID)
 
 	response, err := getTeacher(teacherID)
 	if err != nil {
@@ -33,14 +35,15 @@ func getTeacher(teacherID string) (types.GetTeacherResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
+	fmt.Println("Getting teacher", teacherID, "from the database...")
 	collection := db.MongoClient.Database(db.DbName).Collection(db.TeachersCollection)
-
-	var teacherResult types.Teacher
+	var teacherResult types.TeacherInfo
 	err := collection.FindOne(ctx, bson.M{"teacherid": teacherID}).Decode(&teacherResult)
 	if err != nil {
 		fmt.Println("Error getting teacher info from the database:", err)
 		return types.GetTeacherResponse{}, err
 	}
+	fmt.Println("Successfully retrieved teacher", teacherResult.FirstName, teacherResult.LastName, "from the database!")
 
 	return types.GetTeacherResponse{
 		Teacher: teacherResult,

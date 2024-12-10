@@ -42,8 +42,6 @@ func listTeachers() (types.ListTeachersResponse, error) {
 			"lastname":          1,
 			"profilepictureurl": 1,
 			"_id":               0,
-			"password":          0,
-			"salt":              0,
 		}}},
 	}
 

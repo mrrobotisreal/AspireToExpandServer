@@ -46,6 +46,7 @@ func CreateTeacherHandler(w http.ResponseWriter, r *http.Request) {
 		ThemeMode:          result.ThemeMode,
 		FontStyle:          result.FontStyle,
 		TimeZone:           result.TimeZone,
+		LessonsTaught:      result.LessonsTaught,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -66,6 +67,7 @@ func createTeacher(req types.CreateTeacherRequest) (types.CreateTeacherResponse,
 		ThemeMode:          req.ThemeMode,
 		FontStyle:          req.FontStyle,
 		TimeZone:           req.TimeZone,
+		LessonsTaught:      0,
 	}
 	response := types.CreateTeacherResponse{
 		TeacherID:          req.TeacherID,
@@ -80,6 +82,7 @@ func createTeacher(req types.CreateTeacherRequest) (types.CreateTeacherResponse,
 		ThemeMode:          req.ThemeMode,
 		FontStyle:          req.FontStyle,
 		TimeZone:           req.TimeZone,
+		LessonsTaught:      0,
 	}
 
 	fmt.Println("TeacherID:", newTeacher.TeacherID)
@@ -94,6 +97,7 @@ func createTeacher(req types.CreateTeacherRequest) (types.CreateTeacherResponse,
 	fmt.Println("ThemeMode:", newTeacher.ThemeMode)
 	fmt.Println("FontStyle:", newTeacher.FontStyle)
 	fmt.Println("TimeZone:", newTeacher.TimeZone)
+	fmt.Println("LessonsTaught:", newTeacher.LessonsTaught)
 
 	salt, err := utils.GenerateSalt(10)
 	if err != nil {

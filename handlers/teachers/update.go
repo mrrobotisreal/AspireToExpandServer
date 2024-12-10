@@ -3,6 +3,7 @@ package teachersHandlers
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"io.winapps.aspirewithalina.aspirewithalinaserver/db"
 	"io.winapps.aspirewithalina.aspirewithalinaserver/types"
@@ -37,6 +38,17 @@ func UpdateTeacherInfoHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func updateTeacherInfo(req types.UpdateTeacherInfoRequest) (types.UpdateTeacherInfoResponse, error) {
+	findCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	collection := db.MongoClient.Database(db.DbName).Collection(db.TeachersCollection)
+	var teacherInfo types.Teacher
+	err := collection.FindOne(findCtx, bson.M{"teacherid": req.TeacherID}).Decode(&teacherInfo)
+	if err != nil {
+		fmt.Println("Error finding teacher to be updated in the database:", err)
+		return types.UpdateTeacherInfoResponse{}, err
+	}
+
 	updateTeacherInfoResponse := types.UpdateTeacherInfoResponse{
 		TeacherID:          req.TeacherID,
 		FirstName:          req.FirstName,
@@ -82,15 +94,19 @@ func updateTeacherInfo(req types.UpdateTeacherInfoRequest) (types.UpdateTeacherI
 		update["timezone"] = req.TimeZone
 	}
 
+	if req.LessonsTaught != teacherInfo.LessonsTaught {
+		update["lessonstaught"] = req.LessonsTaught
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	collection := db.MongoClient.Database(db.DbName).Collection(db.TeachersCollection)
+	//collection := db.MongoClient.Database(db.DbName).Collection(db.TeachersCollection)
 
 	var teacherResult types.Teacher
-	err := collection.FindOneAndUpdate(ctx, bson.M{
+	err = collection.FindOneAndUpdate(ctx, bson.M{
 		"$or": []bson.M{
-			{"teacherID": req.TeacherID},
+			{"teacherid": req.TeacherID},
 			{"emailaddress": req.EmailAddress},
 		},
 	}, bson.M{

@@ -62,6 +62,17 @@ func UpdateStudentInfoHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func updateStudentInfo(req types.UpdateStudentInfoRequest) (types.UpdateStudentInfoResponse, error) {
+	findCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	collection := db.MongoClient.Database(db.DbName).Collection(db.StudentsCollection)
+	var studentInfo types.Student
+	err := collection.FindOne(findCtx, bson.M{"emailaddress": req.EmailAddress}).Decode(&studentInfo)
+	if err != nil {
+		fmt.Println("Error finding student to be updated in the database:", err)
+		return types.UpdateStudentInfoResponse{}, err
+	}
+
 	student := types.UpdateStudentInfoResponse{
 		StudentId:          "",
 		FirstName:          "",
@@ -108,14 +119,20 @@ func updateStudentInfo(req types.UpdateStudentInfoRequest) (types.UpdateStudentI
 		update["timezone"] = req.TimeZone
 	}
 
+	if req.LessonsRemaining != studentInfo.LessonsRemaining {
+		update["lessonsremaining"] = req.LessonsRemaining
+	}
+
+	if req.LessonsCompleted != studentInfo.LessonsCompleted {
+		update["lessonscompleted"] = req.LessonsCompleted
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	collection := db.MongoClient.Database(db.DbName).Collection(db.StudentsCollection)
-
 	// Query MongoDB
 	var studentResult types.Student
-	err := collection.FindOneAndUpdate(ctx, bson.M{
+	err = collection.FindOneAndUpdate(ctx, bson.M{
 		"$or": []bson.M{
 			{"emailaddress": req.EmailAddress}, // add StudentID here later
 		},
@@ -141,6 +158,8 @@ func updateStudentInfo(req types.UpdateStudentInfoRequest) (types.UpdateStudentI
 	student.ThemeMode = studentResult.ThemeMode
 	student.FontStyle = studentResult.FontStyle
 	student.TimeZone = studentResult.TimeZone
+	student.LessonsRemaining = studentResult.LessonsRemaining
+	student.LessonsCompleted = studentResult.LessonsCompleted
 
 	if req.PublicKey != "" {
 		studentID := studentResult.StudentId

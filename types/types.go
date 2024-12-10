@@ -44,6 +44,7 @@ type Teacher struct {
 	ThemeMode          string `json:"theme_mode"`
 	FontStyle          string `json:"font_style"`
 	TimeZone           string `json:"time_zone"`
+	LessonsTaught      int64  `json:"lessons_taught"`
 }
 
 type CreateTeacherRequest struct {
@@ -76,6 +77,7 @@ type CreateTeacherResponse struct {
 	ThemeMode          string `json:"theme_mode"`
 	FontStyle          string `json:"font_style"`
 	TimeZone           string `json:"time_zone"`
+	LessonsTaught      int64  `json:"lessons_taught"`
 }
 
 type GetTeacherRequest struct {
@@ -100,6 +102,7 @@ type UpdateTeacherInfoRequest struct {
 	FontStyle          string `json:"font_style"`
 	TimeZone           string `json:"time_zone"`
 	PublicKey          string `json:"public_key"`
+	LessonsTaught      int64  `json:"lessons_taught"`
 }
 
 type UpdateTeacherInfoResponse struct {
@@ -115,6 +118,7 @@ type UpdateTeacherInfoResponse struct {
 	ThemeMode          string `json:"theme_mode"`
 	FontStyle          string `json:"font_style"`
 	TimeZone           string `json:"time_zone"`
+	LessonsTaught      int64  `json:"lessons_taught"`
 }
 
 // ListTeachersRequest struct to handle incoming request for listing all teachers
@@ -152,6 +156,7 @@ type ValidateTeacherLoginResponse struct {
 	ThemeMode          string `json:"theme_mode"`
 	FontStyle          string `json:"font_style"`
 	TimeZone           string `json:"time_zone"`
+	LessonsTaught      int64  `json:"lessons_taught"`
 }
 
 type ValidateTeacherLoginResult struct {

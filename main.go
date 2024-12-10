@@ -39,6 +39,7 @@ func main() {
 	http.HandleFunc("/validate/login", studentsHandlers.ValidateLoginHandler)
 	http.HandleFunc("/validate/login/google", studentsHandlers.ValidateGoogleLoginHandler)
 	http.HandleFunc("/teacher", teachersHandlers.GetTeacherHandler)
+	http.HandleFunc("/teacher/custom", teachersHandlers.CustomGetTeacherHandler)
 	http.HandleFunc("/teachers/delete/custom", teachersHandlers.CustomDeleteTeacherHandler)
 	http.HandleFunc("/teachers", teachersHandlers.ListTeachersHandler)
 	http.HandleFunc("/teachers/create", teachersHandlers.CreateTeacherHandler)

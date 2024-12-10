@@ -69,7 +69,7 @@ func updateStudentInfo(req types.UpdateStudentInfoRequest) (types.UpdateStudentI
 
 	collection := db.MongoClient.Database(db.DbName).Collection(db.StudentsCollection)
 	var studentInfo types.Student
-	err := collection.FindOne(findCtx, bson.M{"emailaddress": req.EmailAddress}).Decode(&studentInfo)
+	err := collection.FindOne(findCtx, bson.M{"studentid": req.StudentId}).Decode(&studentInfo)
 	if err != nil {
 		fmt.Println("Error finding student to be updated in the database:", err)
 		return types.UpdateStudentInfoResponse{}, err
@@ -136,6 +136,7 @@ func updateStudentInfo(req types.UpdateStudentInfoRequest) (types.UpdateStudentI
 	var studentResult types.Student
 	err = collection.FindOneAndUpdate(ctx, bson.M{
 		"$or": []bson.M{
+			{"studentid": req.StudentId},
 			{"emailaddress": req.EmailAddress}, // add StudentID here later
 		},
 	}, bson.M{

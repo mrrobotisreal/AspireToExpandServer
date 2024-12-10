@@ -35,6 +35,10 @@ func listTeachers() (types.ListTeachersResponse, error) {
 	collection := db.MongoClient.Database(db.DbName).Collection(db.TeachersCollection)
 	pipeline := mongo.Pipeline{
 		{{"$sort", bson.D{{"preferredname", 1}}}},
+		{{"$group", bson.M{
+			"_id":     "$teacherid",
+			"teacher": bson.M{"$first": "$$ROOT"},
+		}}},
 		{{"$project", bson.M{
 			"teacherID":         1,
 			"firstname":         1,
@@ -42,6 +46,8 @@ func listTeachers() (types.ListTeachersResponse, error) {
 			"lastname":          1,
 			"profilepictureurl": 1,
 			"_id":               0,
+			"password":          0,
+			"salt":              0,
 		}}},
 	}
 

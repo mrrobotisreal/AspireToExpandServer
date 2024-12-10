@@ -45,7 +45,7 @@ func customGetTeacher(req CustomGetRequest) (types.GetTeacherResponse, error) {
 	update := bson.M{}
 
 	if req.TeacherID != "" {
-		update["teacherID"] = req.TeacherID
+		update["teacherid"] = req.TeacherID
 	}
 	if req.PreferredName != "" {
 		update["preferredname"] = req.PreferredName

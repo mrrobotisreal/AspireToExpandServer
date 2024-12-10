@@ -36,7 +36,7 @@ func getTeacher(teacherID string) (types.GetTeacherResponse, error) {
 	collection := db.MongoClient.Database(db.DbName).Collection(db.TeachersCollection)
 
 	var teacherResult types.Teacher
-	err := collection.FindOne(ctx, bson.M{"teacherID": teacherID}).Decode(&teacherResult)
+	err := collection.FindOne(ctx, bson.M{"teacherid": teacherID}).Decode(&teacherResult)
 	if err != nil {
 		fmt.Println("Error getting teacher info from the database:", err)
 		return types.GetTeacherResponse{}, err

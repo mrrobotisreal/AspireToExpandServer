@@ -17,6 +17,7 @@ func GetTeacherHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	teacherID := r.URL.Query().Get("teacherID")
+	fmt.Println("?teacherID=", teacherID)
 
 	response, err := getTeacher(teacherID)
 	if err != nil {
@@ -37,7 +38,7 @@ func getTeacher(teacherID string) (types.GetTeacherResponse, error) {
 	var teacherResult types.Teacher
 	err := collection.FindOne(ctx, bson.M{"teacherID": teacherID}).Decode(&teacherResult)
 	if err != nil {
-		fmt.Errorf("Error getting teacher info from the database: %v", err)
+		fmt.Println("Error getting teacher info from the database:", err)
 		return types.GetTeacherResponse{}, err
 	}
 

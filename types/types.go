@@ -347,7 +347,7 @@ type ListLessonsRequest struct {
 }
 
 // ListLessonsResponse struct to handle outgoing response for listing lessons
-type ListLessonResponse struct {
+type ListLessonsResponse struct {
 	Lessons []Lesson `json:"lessons"`
 	Page    int64    `json:"page"`
 }

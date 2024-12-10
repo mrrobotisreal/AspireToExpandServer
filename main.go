@@ -7,6 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"io.winapps.aspirewithalina.aspirewithalinaserver/db"
 	"io.winapps.aspirewithalina.aspirewithalinaserver/handlers"
+	lessonsHandlers "io.winapps.aspirewithalina.aspirewithalinaserver/handlers/lessons"
 	studentsHandlers "io.winapps.aspirewithalina.aspirewithalinaserver/handlers/students"
 	teachersHandlers "io.winapps.aspirewithalina.aspirewithalinaserver/handlers/teachers"
 	"log"
@@ -44,6 +45,10 @@ func main() {
 	http.HandleFunc("/students", studentsHandlers.HandleFetchAllStudents)
 	http.HandleFunc("/students/update/image", handlers.HandleUploadProfileImage)
 	http.HandleFunc("/students/delete", studentsHandlers.HandleDeleteStudent)
+	http.HandleFunc("/lessons/create", lessonsHandlers.CreateLessonHandler)
+	http.HandleFunc("/lessons/update", lessonsHandlers.UpdateLessonHandler)
+	http.HandleFunc("/lessons/delete", lessonsHandlers.DeleteLessonHandler)
+	http.HandleFunc("/lessons", lessonsHandlers.ListLessonsHandler)
 
 	// Serve profile images
 	http.Handle("/uploads/profileImages/", http.StripPrefix("/uploads/profileImages", http.FileServer(http.Dir("./uploads/profileImages"))))

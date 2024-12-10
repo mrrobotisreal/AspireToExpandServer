@@ -27,6 +27,7 @@ func UpdateStudentInfoHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Println("UpdateStudentInfo request incoming...")
+	fmt.Println("req.StudentId:", req.StudentId)
 	fmt.Println("req.EmailAddress: " + req.EmailAddress)
 	fmt.Println("req.ProfilePictureURL: " + req.ProfilePictureURL)
 	fmt.Println("req.ProfilePicturePath: " + req.ProfilePicturePath)

@@ -277,6 +277,7 @@ type ValidateGoogleLoginRequest struct {
 
 // UpdateStudentInfoRequest Struct to handle incoming updates to student info
 type UpdateStudentInfoRequest struct {
+	StudentId          string `json:"student_id"` // TODO: Update to be like TeacherID; needs done in Electron apps too
 	FirstName          string `json:"first_name"`
 	PreferredName      string `json:"preferred_name"`
 	LastName           string `json:"last_name"`

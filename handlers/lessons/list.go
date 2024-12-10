@@ -9,6 +9,7 @@ import (
 	"io.winapps.aspirewithalina.aspirewithalinaserver/db"
 	"io.winapps.aspirewithalina.aspirewithalinaserver/types"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -31,25 +32,18 @@ func ListLessonsHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request query, \"isCompleted\" cannot be empty", http.StatusBadRequest)
 		return
 	}
-	if isCanceledStr != "false" && isCanceledStr != "true" {
+
+	if isCanceledResult, err := strconv.ParseBool(isCanceledStr); err == nil {
+		isCanceled = isCanceledResult
+	} else {
 		http.Error(w, "Invalid request query, \"isCanceled\" must be either \"true\" or \"false\"", http.StatusBadRequest)
 		return
 	}
-	if isCompletedStr != "false" && isCompletedStr != "true" {
+	if isCompletedResult, err := strconv.ParseBool(isCompletedStr); err == nil {
+		isCompleted = isCompletedResult
+	} else {
 		http.Error(w, "Invalid request query, \"isCompleted\" must be either \"true\" or \"false\"", http.StatusBadRequest)
 		return
-	}
-	if isCanceledStr == "true" {
-		isCanceled = true
-	}
-	if isCanceledStr == "false" {
-		isCanceled = false
-	}
-	if isCompletedStr == "true" {
-		isCompleted = true
-	}
-	if isCompletedStr == "false" {
-		isCompleted = false
 	}
 
 	response, err := listLessons(isCanceled, isCompleted)

@@ -24,6 +24,15 @@ func ListStudentsHandler(w http.ResponseWriter, r *http.Request) {
 	pageStr := r.URL.Query().Get("page")
 	limitStr := r.URL.Query().Get("limit")
 
+	if pageStr == "" {
+		http.Error(w, "Invalid request query, \"page\" cannot be empty", http.StatusBadRequest)
+		return
+	}
+	if limitStr == "" {
+		http.Error(w, "Invalid request query, \"limit\" cannot be empty", http.StatusBadRequest)
+		return
+	}
+
 	if pageResult, err := strconv.ParseInt(pageStr, 10, 64); err == nil {
 		page = pageResult
 	} else {

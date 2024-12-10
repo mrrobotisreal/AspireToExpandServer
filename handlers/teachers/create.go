@@ -82,6 +82,19 @@ func createTeacher(req types.CreateTeacherRequest) (types.CreateTeacherResponse,
 		TimeZone:           req.TimeZone,
 	}
 
+	fmt.Println("TeacherID:", newTeacher.TeacherID)
+	fmt.Println("FirstName:", newTeacher.FirstName)
+	fmt.Println("PreferredName:", newTeacher.PreferredName)
+	fmt.Println("LastName:", newTeacher.LastName)
+	fmt.Println("NativeLanguage:", newTeacher.NativeLanguage)
+	fmt.Println("PreferredLanguage:", newTeacher.PreferredLanguage)
+	fmt.Println("EmailAddress:", newTeacher.EmailAddress)
+	fmt.Println("ProfilePictureURL:", newTeacher.ProfilePictureURL)
+	fmt.Println("ProfilePicturePath:", newTeacher.ProfilePicturePath)
+	fmt.Println("ThemeMode:", newTeacher.ThemeMode)
+	fmt.Println("FontStyle:", newTeacher.FontStyle)
+	fmt.Println("TimeZone:", newTeacher.TimeZone)
+
 	salt, err := utils.GenerateSalt(10)
 	if err != nil {
 		fmt.Println("Error generating salt... using email address instead.") // Handle this better later

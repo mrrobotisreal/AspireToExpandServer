@@ -33,6 +33,7 @@ func UpdateStudentInfoHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("req.ThemeMode: " + req.ThemeMode)
 	fmt.Println("req.FontStyle: " + req.FontStyle)
 	fmt.Println("req.PublicKey: " + req.PublicKey)
+	fmt.Println("req.LessonsRemaining:", req.LessonsRemaining)
 
 	result, err := updateStudentInfo(req)
 

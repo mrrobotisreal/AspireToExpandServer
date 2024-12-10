@@ -16,8 +16,17 @@ type Student struct {
 	ThemeMode          string `json:"theme_mode"`
 	FontStyle          string `json:"font_style"`
 	TimeZone           string `json:"time_zone"`
-	LessonsRemaining   int32  `json:"lessons_remaining"`
-	LessonsCompleted   int32  `json:"lessons_completed"`
+	LessonsRemaining   int64  `json:"lessons_remaining"`
+	LessonsCompleted   int64  `json:"lessons_completed"`
+}
+
+// ListStudentsRequest struct to handle incoming request to list all students
+type ListStudentsRequest struct{}
+
+// ListStudentsResponse struct to handle outgoing response to list all students
+type ListStudentsResponse struct {
+	Students []Student `json:"students"`
+	Page     int64     `json:"page"`
 }
 
 type Teacher struct {
@@ -208,8 +217,8 @@ type CreateNewStudentLoginRequest struct {
 	FontStyle          string `json:"font_style"`
 	TimeZone           string `json:"time_zone"`
 	PublicKey          string `json:"public_key"`
-	LessonsRemaining   int32  `json:"lessons_remaining"`
-	LessonsCompleted   int32  `json:"lessons_completed"`
+	LessonsRemaining   int64  `json:"lessons_remaining"`
+	LessonsCompleted   int64  `json:"lessons_completed"`
 }
 
 // CreateNewStudentResponse Struct to handle outgoing create new student response
@@ -238,8 +247,8 @@ type ValidateLoginResponse struct {
 	ThemeMode          string `json:"theme_mode"`
 	FontStyle          string `json:"font_style"`
 	TimeZone           string `json:"time_zone"`
-	LessonsRemaining   int32  `json:"lessons_remaining"`
-	LessonsCompleted   int32  `json:"lessons_completed"`
+	LessonsRemaining   int64  `json:"lessons_remaining"`
+	LessonsCompleted   int64  `json:"lessons_completed"`
 }
 
 type ValidateLoginResult struct {
@@ -268,8 +277,8 @@ type UpdateStudentInfoRequest struct {
 	FontStyle          string `json:"font_style"`
 	TimeZone           string `json:"time_zone"`
 	PublicKey          string `json:"public_key"`
-	LessonsRemaining   int32  `json:"lessons_remaining"`
-	LessonsCompleted   int32  `json:"lessons_completed"`
+	LessonsRemaining   int64  `json:"lessons_remaining"`
+	LessonsCompleted   int64  `json:"lessons_completed"`
 }
 
 // UpdateStudentInfoResponse Struct to handle outgoing response after updating student info
@@ -287,8 +296,8 @@ type UpdateStudentInfoResponse struct {
 	ThemeMode          string `json:"theme_mode"`
 	FontStyle          string `json:"font_style"`
 	TimeZone           string `json:"time_zone"`
-	LessonsRemaining   int32  `json:"lessons_remaining"`
-	LessonsCompleted   int32  `json:"lessons_completed"`
+	LessonsRemaining   int64  `json:"lessons_remaining"`
+	LessonsCompleted   int64  `json:"lessons_completed"`
 }
 
 // DeleteStudentRequest struct to handle incoming request to delete a student
@@ -308,10 +317,10 @@ type Lesson struct {
 	StudentId         string `json:"student_id"` // TODO: Update to be like TeacherID; needs done in Electron apps too
 	Subject           string `json:"subject"`
 	ScheduledDateTime int64  `json:"scheduled_date_time"`
-	Room              int32  `json:"room"`
+	Room              int64  `json:"room"`
 	IsCanceled        bool   `json:"is_canceled"`
 	IsCompleted       bool   `json:"is_completed"`
-	TimesRescheduled  int32  `json:"times_rescheduled"`
+	TimesRescheduled  int64  `json:"times_rescheduled"`
 	IsStudentLate     bool   `json:"is_student_late"`    // Only true when 5 minutes or more late
 	IsTeacherLate     bool   `json:"is_teacher_late"`    // Only true when 5 minutes or more late
 	IsConnectionLost  bool   `json:"is_connection_lost"` // Need to really think about this implementation
@@ -323,7 +332,7 @@ type CreateLessonRequest struct {
 	StudentId         string `json:"student_id"` // TODO: Update to be like TeacherID; needs done in Electron apps too
 	Subject           string `json:"subject"`
 	ScheduledDateTime int64  `json:"scheduled_date_time"`
-	Room              int32  `json:"room"`
+	Room              int64  `json:"room"`
 }
 
 // CreateLessonResponse struct to handle outgoing response for creating a new lesson
@@ -336,10 +345,10 @@ type UpdateLessonRequest struct {
 	LessonID          string `json:"lessonID"`
 	Subject           string `json:"subject"`
 	ScheduledDateTime int64  `json:"scheduled_date_time"`
-	Room              int32  `json:"room"`
+	Room              int64  `json:"room"`
 	IsCanceled        bool   `json:"is_canceled"`
 	IsCompleted       bool   `json:"is_completed"`
-	TimesRescheduled  int32  `json:"times_rescheduled"`
+	TimesRescheduled  int64  `json:"times_rescheduled"`
 	IsStudentLate     bool   `json:"is_student_late"`    // Only true when 5 minutes or more late
 	IsTeacherLate     bool   `json:"is_teacher_late"`    // Only true when 5 minutes or more late
 	IsConnectionLost  bool   `json:"is_connection_lost"` // Need to really think about this implementation

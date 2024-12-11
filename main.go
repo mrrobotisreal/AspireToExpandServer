@@ -7,6 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"io.winapps.aspirewithalina.aspirewithalinaserver/db"
 	"io.winapps.aspirewithalina.aspirewithalinaserver/handlers"
+	chatsHandlers "io.winapps.aspirewithalina.aspirewithalinaserver/handlers/chats"
 	lessonsHandlers "io.winapps.aspirewithalina.aspirewithalinaserver/handlers/lessons"
 	studentsHandlers "io.winapps.aspirewithalina.aspirewithalinaserver/handlers/students"
 	teachersHandlers "io.winapps.aspirewithalina.aspirewithalinaserver/handlers/teachers"
@@ -32,27 +33,45 @@ func main() {
 		}
 	}()
 
-	// Setup HTTP server
+	// Setup HTTPS server handlers
+	// Registration handlers
 	http.HandleFunc("/registration/create", handlers.CreateRegistrationHandler)
 	http.HandleFunc("/validate/registration", handlers.ValidateRegistrationHandler)
-	http.HandleFunc("/students/create", studentsHandlers.CreateNewStudentHandler)
+
+	// Login handlers
 	http.HandleFunc("/validate/login", studentsHandlers.ValidateLoginHandler)
 	http.HandleFunc("/validate/login/google", studentsHandlers.ValidateGoogleLoginHandler)
+	http.HandleFunc("/teachers/validate/login", teachersHandlers.ValidateTeacherLoginHandler)
+
+	// Teacher CRUD handlers
 	http.HandleFunc("/teacher", teachersHandlers.GetTeacherHandler)
 	http.HandleFunc("/teachers", teachersHandlers.ListTeachersHandler)
 	http.HandleFunc("/teachers/create", teachersHandlers.CreateTeacherHandler)
 	http.HandleFunc("/teachers/delete", teachersHandlers.DeleteTeacherHandler)
-	http.HandleFunc("/teachers/validate/login", teachersHandlers.ValidateTeacherLoginHandler)
 	http.HandleFunc("/teachers/update", teachersHandlers.UpdateTeacherInfoHandler)
+
+	// Student CRUD handlers
+	http.HandleFunc("/students/create", studentsHandlers.CreateNewStudentHandler)
 	http.HandleFunc("/students/update", studentsHandlers.UpdateStudentInfoHandler)
 	http.HandleFunc("/students", studentsHandlers.ListStudentsHandler)
 	http.HandleFunc("/student", studentsHandlers.GetStudentHandler)
 	http.HandleFunc("/students/update/image", handlers.HandleUploadProfileImage)
 	http.HandleFunc("/students/delete", studentsHandlers.HandleDeleteStudent)
+
+	// Lessons CRUD handlers
 	http.HandleFunc("/lessons/create", lessonsHandlers.CreateLessonHandler)
 	http.HandleFunc("/lessons/update", lessonsHandlers.UpdateLessonHandler)
 	http.HandleFunc("/lessons/delete", lessonsHandlers.DeleteLessonHandler)
 	http.HandleFunc("/lessons", lessonsHandlers.ListLessonsHandler)
+
+	// Chats/Messaging CRUD handlers
+	http.HandleFunc("/chats/create", chatsHandlers.CreateChatRoomHandler)
+	http.HandleFunc("/chats/delete", chatsHandlers.DeleteChatRoomHandler)
+	http.HandleFunc("/chats", chatsHandlers.ListChatRoomsHandler)
+	http.HandleFunc("/messages/send", chatsHandlers.SendMessageHandler)
+	http.HandleFunc("/messages/delete", chatsHandlers.DeleteMessageHandler)
+	http.HandleFunc("/messages/update", chatsHandlers.UpdateMessageHandler)
+	http.HandleFunc("/messages", chatsHandlers.ListMessagesHandler)
 
 	// Serve profile images
 	http.Handle("/uploads/profileImages/", http.StripPrefix("/uploads/profileImages", http.FileServer(http.Dir("./uploads/profileImages"))))

@@ -1,5 +1,9 @@
 package types
 
+//===============//
+// STUDENT TYPES //
+//===============//
+
 // Student struct that determines how students will be stored in the database
 type Student struct {
 	StudentId          string `json:"student_id"` // TODO: Update to be like TeacherID; needs done in Electron apps too
@@ -55,159 +59,6 @@ type GetStudentRequest struct{}
 // GetStudentResponse struct to handle outgoing response for a student
 type GetStudentResponse struct {
 	Student StudentInfo `json:"student"`
-}
-
-// Teacher struct that determines how a teacher is stored in the database
-type Teacher struct {
-	TeacherID          string `json:"teacherID"`
-	FirstName          string `json:"first_name"`
-	PreferredName      string `json:"preferred_name"`
-	LastName           string `json:"last_name"`
-	NativeLanguage     string `json:"native_language"`
-	PreferredLanguage  string `json:"preferred_language"`
-	EmailAddress       string `json:"email_address"`
-	Password           string `json:"password"`
-	Salt               string `json:"salt"`
-	ProfilePictureURL  string `json:"profile_picture_url"`
-	ProfilePicturePath string `json:"profile_picture_path"`
-	ThemeMode          string `json:"theme_mode"`
-	FontStyle          string `json:"font_style"`
-	TimeZone           string `json:"time_zone"`
-	LessonsTaught      int64  `json:"lessons_taught"`
-}
-
-// TeacherInfo struct that determines the info that can be retrieved about a teacher securely (i.e. no passwords, salts, etc.)
-type TeacherInfo struct {
-	TeacherID          string `json:"teacherID"`
-	FirstName          string `json:"first_name"`
-	PreferredName      string `json:"preferred_name"`
-	LastName           string `json:"last_name"`
-	NativeLanguage     string `json:"native_language"`
-	PreferredLanguage  string `json:"preferred_language"`
-	EmailAddress       string `json:"email_address"`
-	ProfilePictureURL  string `json:"profile_picture_url"`
-	ProfilePicturePath string `json:"profile_picture_path"`
-	ThemeMode          string `json:"theme_mode"`
-	FontStyle          string `json:"font_style"`
-	TimeZone           string `json:"time_zone"`
-	LessonsTaught      int64  `json:"lessons_taught"`
-}
-
-type CreateTeacherRequest struct {
-	TeacherID          string `json:"teacherID"`
-	FirstName          string `json:"first_name"`
-	PreferredName      string `json:"preferred_name"`
-	LastName           string `json:"last_name"`
-	NativeLanguage     string `json:"native_language"`
-	PreferredLanguage  string `json:"preferred_language"`
-	EmailAddress       string `json:"email_address"`
-	Password           string `json:"password"`
-	ProfilePictureURL  string `json:"profile_picture_url"`
-	ProfilePicturePath string `json:"profile_picture_path"`
-	ThemeMode          string `json:"theme_mode"`
-	FontStyle          string `json:"font_style"`
-	TimeZone           string `json:"time_zone"`
-	PublicKey          string `json:"public_key"`
-}
-
-type CreateTeacherResponse struct {
-	TeacherID          string `json:"teacherID"`
-	FirstName          string `json:"first_name"`
-	PreferredName      string `json:"preferred_name"`
-	LastName           string `json:"last_name"`
-	NativeLanguage     string `json:"native_language"`
-	PreferredLanguage  string `json:"preferred_language"`
-	EmailAddress       string `json:"email_address"`
-	ProfilePictureURL  string `json:"profile_picture_url"`
-	ProfilePicturePath string `json:"profile_picture_path"`
-	ThemeMode          string `json:"theme_mode"`
-	FontStyle          string `json:"font_style"`
-	TimeZone           string `json:"time_zone"`
-	LessonsTaught      int64  `json:"lessons_taught"`
-}
-
-type GetTeacherRequest struct {
-	TeacherID string `json:"teacherID"`
-}
-
-type GetTeacherResponse struct {
-	Teacher TeacherInfo `json:"teacher"`
-}
-
-type UpdateTeacherInfoRequest struct {
-	TeacherID          string `json:"teacherID"`
-	FirstName          string `json:"first_name"`
-	PreferredName      string `json:"preferred_name"`
-	LastName           string `json:"last_name"`
-	NativeLanguage     string `json:"native_language"`
-	PreferredLanguage  string `json:"preferred_language"`
-	EmailAddress       string `json:"email_address"`
-	ProfilePictureURL  string `json:"profile_picture_url"`
-	ProfilePicturePath string `json:"profile_picture_path"`
-	ThemeMode          string `json:"theme_mode"`
-	FontStyle          string `json:"font_style"`
-	TimeZone           string `json:"time_zone"`
-	PublicKey          string `json:"public_key"`
-	LessonsTaught      int64  `json:"lessons_taught"`
-}
-
-type UpdateTeacherInfoResponse struct {
-	TeacherID          string `json:"teacherID"`
-	FirstName          string `json:"first_name"`
-	PreferredName      string `json:"preferred_name"`
-	LastName           string `json:"last_name"`
-	NativeLanguage     string `json:"native_language"`
-	PreferredLanguage  string `json:"preferred_language"`
-	EmailAddress       string `json:"email_address"`
-	ProfilePictureURL  string `json:"profile_picture_url"`
-	ProfilePicturePath string `json:"profile_picture_path"`
-	ThemeMode          string `json:"theme_mode"`
-	FontStyle          string `json:"font_style"`
-	TimeZone           string `json:"time_zone"`
-	LessonsTaught      int64  `json:"lessons_taught"`
-}
-
-// ListTeachersRequest struct to handle incoming request for listing all teachers
-type ListTeachersRequest struct{}
-
-// ListTeachersResponse struct to handle outgoing response for listing all teachers
-type ListTeachersResponse struct {
-	Teachers []Teacher `json:"teachers"`
-}
-
-// DeleteTeacherRequest struct to handle incoming request to delete a teacher
-type DeleteTeacherRequest struct{}
-
-// DeleteTeacherResponse struct to handle outgoing response to delete a teacher
-type DeleteTeacherResponse struct {
-	IsDeleted bool `json:"is_deleted"`
-}
-
-type ValidateTeacherLoginRequest struct {
-	EmailAddress string `json:"email_address"`
-	Password     string `json:"password"`
-	TeacherID    string `json:"teacherID"`
-}
-
-type ValidateTeacherLoginResponse struct {
-	TeacherID          string `json:"teacherID"`
-	FirstName          string `json:"first_name"`
-	PreferredName      string `json:"preferred_name"`
-	LastName           string `json:"last_name"`
-	NativeLanguage     string `json:"native_language"`
-	PreferredLanguage  string `json:"preferred_language"`
-	EmailAddress       string `json:"email_address"`
-	ProfilePictureURL  string `json:"profile_picture_url"`
-	ProfilePicturePath string `json:"profile_picture_path"`
-	ThemeMode          string `json:"theme_mode"`
-	FontStyle          string `json:"font_style"`
-	TimeZone           string `json:"time_zone"`
-	LessonsTaught      int64  `json:"lessons_taught"`
-}
-
-type ValidateTeacherLoginResult struct {
-	TeacherInfo ValidateTeacherLoginResponse
-	IsValid     bool
 }
 
 // CreateRegistrationRequest Struct to handle incoming create registration code request
@@ -362,6 +213,167 @@ type DeleteStudentResponse struct {
 	IsDeleted bool `json:"is_deleted"`
 }
 
+//===============//
+// TEACHER TYPES //
+//===============//
+
+// Teacher struct that determines how a teacher is stored in the database
+type Teacher struct {
+	TeacherID          string `json:"teacherID"`
+	FirstName          string `json:"first_name"`
+	PreferredName      string `json:"preferred_name"`
+	LastName           string `json:"last_name"`
+	NativeLanguage     string `json:"native_language"`
+	PreferredLanguage  string `json:"preferred_language"`
+	EmailAddress       string `json:"email_address"`
+	Password           string `json:"password"`
+	Salt               string `json:"salt"`
+	ProfilePictureURL  string `json:"profile_picture_url"`
+	ProfilePicturePath string `json:"profile_picture_path"`
+	ThemeMode          string `json:"theme_mode"`
+	FontStyle          string `json:"font_style"`
+	TimeZone           string `json:"time_zone"`
+	LessonsTaught      int64  `json:"lessons_taught"`
+}
+
+// TeacherInfo struct that determines the info that can be retrieved about a teacher securely (i.e. no passwords, salts, etc.)
+type TeacherInfo struct {
+	TeacherID          string `json:"teacherID"`
+	FirstName          string `json:"first_name"`
+	PreferredName      string `json:"preferred_name"`
+	LastName           string `json:"last_name"`
+	NativeLanguage     string `json:"native_language"`
+	PreferredLanguage  string `json:"preferred_language"`
+	EmailAddress       string `json:"email_address"`
+	ProfilePictureURL  string `json:"profile_picture_url"`
+	ProfilePicturePath string `json:"profile_picture_path"`
+	ThemeMode          string `json:"theme_mode"`
+	FontStyle          string `json:"font_style"`
+	TimeZone           string `json:"time_zone"`
+	LessonsTaught      int64  `json:"lessons_taught"`
+}
+
+type CreateTeacherRequest struct {
+	TeacherID          string `json:"teacherID"`
+	FirstName          string `json:"first_name"`
+	PreferredName      string `json:"preferred_name"`
+	LastName           string `json:"last_name"`
+	NativeLanguage     string `json:"native_language"`
+	PreferredLanguage  string `json:"preferred_language"`
+	EmailAddress       string `json:"email_address"`
+	Password           string `json:"password"`
+	ProfilePictureURL  string `json:"profile_picture_url"`
+	ProfilePicturePath string `json:"profile_picture_path"`
+	ThemeMode          string `json:"theme_mode"`
+	FontStyle          string `json:"font_style"`
+	TimeZone           string `json:"time_zone"`
+	PublicKey          string `json:"public_key"`
+}
+
+type CreateTeacherResponse struct {
+	TeacherID          string `json:"teacherID"`
+	FirstName          string `json:"first_name"`
+	PreferredName      string `json:"preferred_name"`
+	LastName           string `json:"last_name"`
+	NativeLanguage     string `json:"native_language"`
+	PreferredLanguage  string `json:"preferred_language"`
+	EmailAddress       string `json:"email_address"`
+	ProfilePictureURL  string `json:"profile_picture_url"`
+	ProfilePicturePath string `json:"profile_picture_path"`
+	ThemeMode          string `json:"theme_mode"`
+	FontStyle          string `json:"font_style"`
+	TimeZone           string `json:"time_zone"`
+	LessonsTaught      int64  `json:"lessons_taught"`
+}
+
+type GetTeacherRequest struct {
+	TeacherID string `json:"teacherID"`
+}
+
+type GetTeacherResponse struct {
+	Teacher TeacherInfo `json:"teacher"`
+}
+
+type UpdateTeacherInfoRequest struct {
+	TeacherID          string `json:"teacherID"`
+	FirstName          string `json:"first_name"`
+	PreferredName      string `json:"preferred_name"`
+	LastName           string `json:"last_name"`
+	NativeLanguage     string `json:"native_language"`
+	PreferredLanguage  string `json:"preferred_language"`
+	EmailAddress       string `json:"email_address"`
+	ProfilePictureURL  string `json:"profile_picture_url"`
+	ProfilePicturePath string `json:"profile_picture_path"`
+	ThemeMode          string `json:"theme_mode"`
+	FontStyle          string `json:"font_style"`
+	TimeZone           string `json:"time_zone"`
+	PublicKey          string `json:"public_key"`
+	LessonsTaught      int64  `json:"lessons_taught"`
+}
+
+type UpdateTeacherInfoResponse struct {
+	TeacherID          string `json:"teacherID"`
+	FirstName          string `json:"first_name"`
+	PreferredName      string `json:"preferred_name"`
+	LastName           string `json:"last_name"`
+	NativeLanguage     string `json:"native_language"`
+	PreferredLanguage  string `json:"preferred_language"`
+	EmailAddress       string `json:"email_address"`
+	ProfilePictureURL  string `json:"profile_picture_url"`
+	ProfilePicturePath string `json:"profile_picture_path"`
+	ThemeMode          string `json:"theme_mode"`
+	FontStyle          string `json:"font_style"`
+	TimeZone           string `json:"time_zone"`
+	LessonsTaught      int64  `json:"lessons_taught"`
+}
+
+// ListTeachersRequest struct to handle incoming request for listing all teachers
+type ListTeachersRequest struct{}
+
+// ListTeachersResponse struct to handle outgoing response for listing all teachers
+type ListTeachersResponse struct {
+	Teachers []Teacher `json:"teachers"`
+}
+
+// DeleteTeacherRequest struct to handle incoming request to delete a teacher
+type DeleteTeacherRequest struct{}
+
+// DeleteTeacherResponse struct to handle outgoing response to delete a teacher
+type DeleteTeacherResponse struct {
+	IsDeleted bool `json:"is_deleted"`
+}
+
+type ValidateTeacherLoginRequest struct {
+	EmailAddress string `json:"email_address"`
+	Password     string `json:"password"`
+	TeacherID    string `json:"teacherID"`
+}
+
+type ValidateTeacherLoginResponse struct {
+	TeacherID          string `json:"teacherID"`
+	FirstName          string `json:"first_name"`
+	PreferredName      string `json:"preferred_name"`
+	LastName           string `json:"last_name"`
+	NativeLanguage     string `json:"native_language"`
+	PreferredLanguage  string `json:"preferred_language"`
+	EmailAddress       string `json:"email_address"`
+	ProfilePictureURL  string `json:"profile_picture_url"`
+	ProfilePicturePath string `json:"profile_picture_path"`
+	ThemeMode          string `json:"theme_mode"`
+	FontStyle          string `json:"font_style"`
+	TimeZone           string `json:"time_zone"`
+	LessonsTaught      int64  `json:"lessons_taught"`
+}
+
+type ValidateTeacherLoginResult struct {
+	TeacherInfo ValidateTeacherLoginResponse
+	IsValid     bool
+}
+
+//==============//
+// LESSON TYPES //
+//==============//
+
 // Lesson struct to be stored in lessonsCollection
 type Lesson struct {
 	LessonID          string `json:"lessonID"`
@@ -437,6 +449,56 @@ type ListLessonsResponse struct {
 	Page    int64    `json:"page"`
 }
 
+//====================//
+// CHAT/MESSAGE TYPES //
+//====================//
+
+// CreateChatRoomRequest struct to handle incoming request to create a new chat room
+type CreateChatRoomRequest struct{}
+
+// CreateChatRoomResponse struct to handle outgoing response to create a new chat room
+type CreateChatRoomResponse struct{}
+
+// DeleteChatRoomRequest struct to handle incoming request to delete a chat room
+type DeleteChatRoomRequest struct{}
+
+// DeleteChatRoomResponse struct to handle outgoing response to delete a chat room
+type DeleteChatRoomResponse struct{}
+
+// ListChatRoomsRequest struct to handle incoming request to list all chat rooms
+type ListChatRoomsRequest struct{}
+
+// ListChatRoomsResponse struct to handle outgoing response to list all chat rooms
+type ListChatRoomsResponse struct{}
+
+// SendMessageRequest struct to handle incoming request to send a chat message
+type SendMessageRequest struct{}
+
+// SendMessageResponse struct to handle outgoing response to send a chat message
+type SendMessageResponse struct{}
+
+// UpdateMessageRequest struct to handle incoming request to update a chat message
+type UpdateMessageRequest struct{}
+
+// UpdateMessageResponse struct to handle outgoing response to update a chat message
+type UpdateMessageResponse struct{}
+
+// DeleteMessageRequest struct to handle incoming request to delete a chat message
+type DeleteMessageRequest struct{}
+
+// DeleteMessageResponse struct to handle outgoing response to delete a chat message
+type DeleteMessageResponse struct{}
+
+// ListMessagesRequest struct to handle incoming request for all chat messages in a chat room
+type ListMessagesRequest struct{}
+
+// ListMessagesResponse struct to handle outgoing response for all chat messages in a chat room
+type ListMessagesResponse struct{}
+
+//==================//
+// ASSIGNMENT TYPES //
+//==================//
+
 // Assignment Struct to be stored in studentAssignmentsCollection
 type Assignment struct {
 	AssignmentID  string `json:"assignmentID"`
@@ -453,6 +515,10 @@ type StudentAssignments struct {
 	StudentId   string       `json:"student_id"`  // TODO: Update to be like TeacherID; needs done in Electron apps too
 	Assignments []Assignment `json:"assignments"` // TODO: Probably remove this and change it to array of string IDs so it's not too large
 }
+
+//============//
+// GAME TYPES //
+//============//
 
 // SpaceShooterGame Struct to be stored in studentGamesCollection for SpaceShooter
 type SpaceShooterGame struct {

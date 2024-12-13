@@ -332,7 +332,7 @@ type ListTeachersRequest struct{}
 
 // ListTeachersResponse struct to handle outgoing response for listing all teachers
 type ListTeachersResponse struct {
-	Teachers []Teacher `json:"teachers"`
+	Teachers []TeacherInfo `json:"teachers"`
 }
 
 // DeleteTeacherRequest struct to handle incoming request to delete a teacher

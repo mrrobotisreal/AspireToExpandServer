@@ -54,7 +54,7 @@ func listTeachers() (types.ListTeachersResponse, error) {
 	}
 	defer cursor.Close(ctx)
 
-	var results []types.Teacher
+	var results []types.TeacherInfo
 	if err := cursor.All(ctx, &results); err != nil {
 		log.Printf("Error compiling all teachers results from cursor: %v", err.Error())
 		return types.ListTeachersResponse{

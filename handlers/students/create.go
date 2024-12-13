@@ -55,6 +55,8 @@ func createNewStudent(req types.CreateNewStudentLoginRequest) (string, error) {
 	newStudent.ThemeMode = req.ThemeMode
 	newStudent.FontStyle = req.FontStyle
 	newStudent.TimeZone = req.TimeZone
+	newStudent.LessonsRemaining = 0
+	newStudent.LessonsCompleted = 0
 
 	salt, err := utils.GenerateSalt(10)
 	if err != nil {

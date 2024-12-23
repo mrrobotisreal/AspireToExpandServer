@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"go.mongodb.org/mongo-driver/bson"
 	"io.winapps.aspirewithalina.aspirewithalinaserver/db"
 	"io.winapps.aspirewithalina.aspirewithalinaserver/types"
 	"io.winapps.aspirewithalina.aspirewithalinaserver/utils"
@@ -133,6 +134,23 @@ func createTeacher(req types.CreateTeacherRequest) (types.CreateTeacherResponse,
 		teacherID := req.TeacherID
 		formattedTeacherID := strings.ReplaceAll(teacherID, "-", "_")
 		utils.SavePublicKey(formattedTeacherID, req.PublicKey)
+	}
+
+	usersCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	usersCollection := db.MongoClient.Database(db.DbName).Collection(db.UsersCollection)
+	_, err = usersCollection.InsertOne(usersCtx, bson.M{
+		"userId":            newTeacher.TeacherID,
+		"userType":          "teacher",
+		"preferredName":     newTeacher.PreferredName,
+		"firstName":         newTeacher.FirstName,
+		"lastName":          newTeacher.LastName,
+		"profilePictureUrl": newTeacher.ProfilePictureURL,
+	})
+	if err != nil {
+		log.Println("Error inserting user into usersCollection: " + err.Error())
+		return response, err
 	}
 
 	return response, nil

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson"
 	"io.winapps.aspirewithalina.aspirewithalinaserver/db"
 	"io.winapps.aspirewithalina.aspirewithalinaserver/types"
 	"io.winapps.aspirewithalina.aspirewithalinaserver/utils"
@@ -96,6 +97,25 @@ func createNewStudent(req types.CreateNewStudentLoginRequest) (string, error) {
 		studentID := newStudent.StudentId
 		formattedStudentID := strings.ReplaceAll(studentID, "-", "_")
 		utils.SavePublicKey(formattedStudentID, req.PublicKey)
+	}
+
+	usersCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	usersCollection := db.MongoClient.Database(db.DbName).Collection(db.UsersCollection)
+	usersResult, err := usersCollection.InsertOne(usersCtx, bson.M{
+		"userId":            newStudent.StudentId,
+		"userType":          "student",
+		"preferredName":     newStudent.PreferredName,
+		"firstName":         newStudent.FirstName,
+		"lastName":          newStudent.LastName,
+		"profilePictureUrl": newStudent.ProfilePictureURL,
+	})
+	if err != nil {
+		return "", err
+	} else {
+		fmt.Println("Users result:")
+		fmt.Println(usersResult)
 	}
 
 	return newStudent.StudentId, err

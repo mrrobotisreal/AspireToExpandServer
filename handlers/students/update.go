@@ -92,6 +92,7 @@ func updateStudentInfo(req types.UpdateStudentInfoRequest) (types.UpdateStudentI
 	}
 
 	update := bson.M{}
+	usersUpdate := bson.M{}
 
 	if req.ThemeMode != "" {
 		update["thememode"] = req.ThemeMode
@@ -103,6 +104,7 @@ func updateStudentInfo(req types.UpdateStudentInfoRequest) (types.UpdateStudentI
 
 	if req.ProfilePictureURL != "" {
 		update["profilepictureurl"] = req.ProfilePictureURL
+		usersUpdate["profilePictureUrl"] = req.ProfilePictureURL
 	}
 
 	if req.ProfilePicturePath != "" {
@@ -111,6 +113,7 @@ func updateStudentInfo(req types.UpdateStudentInfoRequest) (types.UpdateStudentI
 
 	if req.PreferredName != "" {
 		update["preferredname"] = req.PreferredName
+		usersUpdate["preferredName"] = req.PreferredName
 	}
 
 	if req.PreferredLanguage != "" {
@@ -168,6 +171,22 @@ func updateStudentInfo(req types.UpdateStudentInfoRequest) (types.UpdateStudentI
 		studentID := studentResult.StudentId
 		formattedStudentID := strings.ReplaceAll(studentID, "-", "_")
 		utils.SavePublicKey(formattedStudentID, req.PublicKey)
+	}
+
+	usersCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	usersCollection := db.MongoClient.Database(db.DbName).Collection(db.UsersCollection)
+	var userResult bson.M
+	err = usersCollection.FindOneAndUpdate(usersCtx, bson.M{
+		"userId": student.StudentId,
+	}, bson.M{
+		"$set": usersUpdate,
+	}).Decode(&userResult)
+	if err != nil {
+		fmt.Println("Error updating user info in mongodb... returning error")
+		fmt.Println("Error is: " + err.Error())
+		return student, err
 	}
 
 	return student, nil

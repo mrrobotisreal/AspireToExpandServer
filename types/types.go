@@ -61,6 +61,14 @@ type GetStudentResponse struct {
 	Student StudentInfo `json:"student"`
 }
 
+// VerifyUserEmailResponse struct to handle outgoing user verification response
+type VerifyUserEmailResponse struct{}
+
+// UserVerification struct
+type UserVerification struct {
+	VerificationCode string `bson:"verificationCode" json:"verificationCode"`
+}
+
 // CreateRegistrationRequest Struct to handle incoming create registration code request
 type CreateRegistrationRequest struct {
 	RegistrationCode string `json:"registration_code"`
@@ -452,6 +460,34 @@ type ListLessonsResponse struct {
 //====================//
 // CHAT/MESSAGE TYPES //
 //====================//
+
+// CreateUserRequest struct to handle incoming request to create a new user for chat
+type CreateUserRequest struct {
+	UserId            string `bson:"userId" json:"userId"`
+	UserType          string `bson:"userType" json:"userType"`
+	PreferredName     string `bson:"preferredName" json:"preferredName"`
+	FirstName         string `bson:"firstName" json:"firstName"`
+	LastName          string `bson:"lastName" json:"lastName"`
+	ProfilePictureURL string `bson:"profilePictureUrl" json:"profilePictureUrl"`
+}
+
+// CreateUserResponse struct to handle outgoing response to create a new user for chat
+type CreateUserResponse struct {
+	IsCreated bool `bson:"isCreated" json:"isCreated"`
+}
+
+// UpdateUserRequest struct to handle incoming request to update a chat user
+type UpdateUserRequest struct {
+	UserId            string `bson:"userId" json:"userId"`
+	UserType          string `bson:"userType" json:"userType"`
+	PreferredName     string `bson:"preferredName" json:"preferredName"`
+	ProfilePictureURL string `bson:"profilePictureUrl" json:"profilePictureUrl"`
+}
+
+// UpdateUserResponse struct to handle outgoing response to update a chat user
+type UpdateUserResponse struct {
+	IsUpdated bool `bson:"isUpdated" json:"isUpdated"`
+}
 
 // CreateChatRoomRequest struct to handle incoming request to create a new chat room
 type CreateChatRoomRequest struct{}

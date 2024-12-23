@@ -72,6 +72,8 @@ func main() {
 	http.HandleFunc("/messages/delete", chatsHandlers.DeleteMessageHandler)
 	http.HandleFunc("/messages/update", chatsHandlers.UpdateMessageHandler)
 	http.HandleFunc("/messages", chatsHandlers.ListMessagesHandler)
+	http.HandleFunc("/chatUsers/create", chatsHandlers.CreateUserHandler)
+	http.HandleFunc("/chatUsers/update", chatsHandlers.UpdateUserHandler)
 
 	// Serve profile images
 	http.Handle("/uploads/profileImages/", http.StripPrefix("/uploads/profileImages", http.FileServer(http.Dir("./uploads/profileImages"))))

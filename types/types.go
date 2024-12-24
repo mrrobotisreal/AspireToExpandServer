@@ -69,6 +69,20 @@ type UserVerification struct {
 	VerificationCode string `bson:"verificationCode" json:"verificationCode"`
 }
 
+// CreateVerificationRequest struct to handle incoming request to create a verification object
+type CreateVerificationRequest struct {
+	Token            string `bson:"token" json:"token"`
+	Email            string `bson:"email" json:"email"`
+	IsVerified       bool   `bson:"isVerified" json:"isVerified"`
+	RegistrationCode string `bson:"registrationCode" json:"registrationCode"`
+	IsRegistered     bool   `bson:"isRegistered" json:"isRegistered"`
+}
+
+// CreateVerificationResponse struct to handle outgoing response to create a verification object
+type CreateVerificationResponse struct {
+	IsCreated bool `bson:"isCreated" json:"isCreated"`
+}
+
 // CreateRegistrationRequest Struct to handle incoming create registration code request
 type CreateRegistrationRequest struct {
 	RegistrationCode string `json:"registration_code"`

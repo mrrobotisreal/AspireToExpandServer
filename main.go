@@ -37,6 +37,7 @@ func main() {
 	// Registration handlers
 	http.HandleFunc("/registration/create", handlers.CreateRegistrationHandler)
 	http.HandleFunc("/validate/registration", handlers.ValidateRegistrationHandler)
+	http.HandleFunc("/verifications/create", handlers.CreateVerificationHandler)
 
 	// Login handlers
 	http.HandleFunc("/validate/login", studentsHandlers.ValidateLoginHandler)

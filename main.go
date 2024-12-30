@@ -41,6 +41,7 @@ func main() {
 
 	// Login handlers
 	http.HandleFunc("/validate/login", studentsHandlers.ValidateLoginHandler)
+	http.HandleFunc("/validate/login/mobile", studentsHandlers.ValidateLoginMobileHandler)
 	http.HandleFunc("/validate/login/google", studentsHandlers.ValidateGoogleLoginHandler)
 	http.HandleFunc("/teachers/validate/login", teachersHandlers.ValidateTeacherLoginHandler)
 

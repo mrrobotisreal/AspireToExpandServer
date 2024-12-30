@@ -152,12 +152,46 @@ type CreateNewStudentResponse struct {
 
 // ValidateLoginRequest Struct to handle incoming login request
 type ValidateLoginRequest struct {
-	EmailAddress string `json:"email_address"`
-	Password     string `json:"password"`
+	EmailAddress string `bson:"email_address" json:"email_address"`
+	Password     string `bson:"password" json:"password"`
 }
 
 // ValidateLoginResponse Struct to handle outgoing login response
 type ValidateLoginResponse struct {
+	StudentId          string `bson:"student_id" json:"student_id"` // TODO: Update to be like TeacherID; needs done in Electron apps too
+	FirstName          string `bson:"first_name" json:"first_name"`
+	PreferredName      string `bson:"preferred_name" json:"preferred_name"`
+	LastName           string `bson:"last_name" json:"last_name"`
+	EmailAddress       string `bson:"email_address" json:"email_address"`
+	NativeLanguage     string `bson:"native_language" json:"native_language"`
+	PreferredLanguage  string `bson:"preferred_language" json:"preferred_language"`
+	StudentSince       string `bson:"student_since" json:"student_since"`
+	ProfilePictureURL  string `bson:"profile_picture_url" json:"profile_picture_url"`
+	ProfilePicturePath string `bson:"profile_picture_path" json:"profile_picture_path"`
+	ThemeMode          string `bson:"theme_mode" json:"theme_mode"`
+	FontStyle          string `bson:"font_style" json:"font_style"`
+	TimeZone           string `bson:"time_zone" json:"time_zone"`
+	LessonsRemaining   int64  `bson:"lessons_remaining" json:"lessons_remaining"`
+	LessonsCompleted   int64  `bson:"lessons_completed" json:"lessons_completed"`
+}
+
+type ValidateLoginResult struct {
+	IsValid     bool                  `bson:"is_valid" json:"is_valid"`
+	StudentInfo ValidateLoginResponse `bson:"student_info" json:"student_info"`
+}
+
+// Actually, I probably don't need this struct below, it's the same as ValidateLoginRequest
+
+// ValidateLoginMobileRequest struct to handle incoming login requests from the mobile app
+type ValidateLoginMobileRequest struct {
+	EmailAddress string `bson:"email_address" json:"email_address"`
+	Password     string `bson:"password" json:"password"`
+}
+
+// Actually, I probably don't need this struct below, it's the same as StudentInfo
+
+// ValidateLoginMobileResponse struct to handle outgoing login responses to the mobile app
+type ValidateLoginMobileResponse struct {
 	StudentId          string `json:"student_id"` // TODO: Update to be like TeacherID; needs done in Electron apps too
 	FirstName          string `json:"first_name"`
 	PreferredName      string `json:"preferred_name"`
@@ -175,9 +209,10 @@ type ValidateLoginResponse struct {
 	LessonsCompleted   int64  `json:"lessons_completed"`
 }
 
-type ValidateLoginResult struct {
-	IsValid     bool                  `json:"is_valid"`
-	StudentInfo ValidateLoginResponse `json:"student_info"`
+// ValidateLoginMobileResult struct for handling the result of the login to mobile attempt
+type ValidateLoginMobileResult struct {
+	IsValid     bool                        `bson:"is_valid" json:"is_valid"`
+	StudentInfo ValidateLoginMobileResponse `bson:"student_info" json:"student_info"`
 }
 
 type ValidateGoogleLoginRequest struct {

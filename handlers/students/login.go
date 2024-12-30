@@ -107,6 +107,8 @@ func validateLogin(req types.ValidateLoginRequest) (types.ValidateLoginResult, e
 	student.ThemeMode = studentResult.ThemeMode
 	student.FontStyle = studentResult.FontStyle
 	student.TimeZone = studentResult.TimeZone
+	student.LessonsRemaining = studentResult.LessonsRemaining
+	student.LessonsCompleted = studentResult.LessonsCompleted
 
 	isPasswordValid := utils.CheckPasswordHash(req.Password+studentResult.Salt, studentResult.Password)
 	validateLoginResult.IsValid = isPasswordValid

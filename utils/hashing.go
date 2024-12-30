@@ -26,6 +26,13 @@ func HashPassword(password string) (string, error) {
 	return string(bytes), err
 }
 
+// HashPasswordMobile - hashes password for mobile as the Desktop app does
+func HashPasswordMobile(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 0)
+
+	return string(bytes), err
+}
+
 // Check password hash
 func CheckPasswordHash(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))

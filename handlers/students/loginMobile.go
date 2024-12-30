@@ -9,6 +9,7 @@ import (
 	"io.winapps.aspirewithalina.aspirewithalinaserver/types"
 	"io.winapps.aspirewithalina.aspirewithalinaserver/utils"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -42,18 +43,25 @@ func ValidateLoginMobileHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func validateLoginMobile(req types.ValidateLoginMobileRequest) (types.ValidateLoginMobileResult, error) {
+	salt := os.Getenv("SALT")
+	hashedPassword, err := utils.HashPasswordMobile(req.Password + salt)
+	if err != nil {
+		fmt.Println("An error occurred while trying to initially hash password: ", err)
+		return types.ValidateLoginMobileResult{}, err
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	collection := db.MongoClient.Database(db.DbName).Collection(db.StudentsCollection)
 	var result types.Student
-	err := collection.FindOne(ctx, bson.M{"emailaddress": req.EmailAddress}).Decode(&result)
+	err = collection.FindOne(ctx, bson.M{"emailaddress": req.EmailAddress}).Decode(&result)
 	if err != nil {
 		fmt.Println("An error occurred while attempting to find the student in the database: ", err)
 		return types.ValidateLoginMobileResult{}, err
 	}
 
-	isPasswordValid := utils.CheckPasswordHash(req.Password+result.Salt, result.Password)
+	isPasswordValid := utils.CheckPasswordHash(hashedPassword+result.Salt, result.Password)
 	return types.ValidateLoginMobileResult{
 		IsValid: isPasswordValid,
 		StudentInfo: types.ValidateLoginMobileResponse{

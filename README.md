@@ -1,6 +1,6 @@
-# AspireWithAlinaServer
+# AspireToExpandServer
 
-**Aspire With Alina** is an educational app used for learning English. This package is specifically for the backend services related to the app functionality, such as handling authentication and fetching resources.
+**Aspire To Expand** is an educational app used for learning English. This package is specifically for the backend services related to the app functionality, such as handling authentication and fetching resources.
 
 _An educational platform for teachers who want a trustworthy and well built desktop application for teaching their students._ 👩‍🏫👨‍🏫💻📚
 
